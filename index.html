@@ -3,11 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Helmet & Dinimiz İslam</title>
-    
-    <link rel="stylesheet" href="shared.css">
-    <link rel="stylesheet" href="islam.css">
-    <link rel="stylesheet" href="dragon.css">
+    <title>Dragon Helmet - Dinimiz İslam</title>
+    <style>
+        /* --- GENEL AYARLAR --- */
+        :root {
+            --ana-renk: #2c3e50;
+            --vurgu-renk: #c0392b;
+            --arka-plan: #f4f7f6;
+            --menu-pasif: rgba(0, 0, 0, 0.3);
+        }
+
+        body { 
+            font-family: 'Georgia', serif; 
+            background: var(--arka-plan); 
+            color: #333; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
+
+        /* --- YENİ: ÜST GEÇİŞ MENÜSÜ (Görseldeki Stil) --- */
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px 0;
+            background: transparent;
+            z-index: 1000;
+        }
+
+        .nav-link {
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            color: var(--menu-pasif);
+            transition: 0.3s;
+            padding: 5px 10px;
+        }
+
+        .nav-link.active {
+            color: var(--ana-renk);
+            border-bottom: 2px solid var(--vurgu-renk);
+        }
+
+        /* --- ÜST KISIM --- */
+        header { 
+            display: flex; 
+            justify-content: flex-end; 
+            padding: 15px 30px; 
+            position: absolute;
+            right: 0;
+        }
+
+        .menu-toggle { 
+            font-size: 2rem; 
+            cursor: pointer; 
+            background: none; 
+            border: none; 
+            color: #555; 
+            outline: none; 
+            transition: 0.3s;
+        }
+        .menu-toggle:hover { color: var(--vurgu-renk); }
+
+        /* --- YAN MENÜ --- */
+        .side-menu { 
+            position: fixed; top: 0; right: -350px; 
+            width: 280px; height: 100%; 
+            background: #343a40; transition: 0.4s; 
+            z-index: 999; padding: 70px 20px 20px; 
+            overflow-y: auto;
+        }
+        .side-menu.active { right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
+        .menu-item { 
+            display: block; background: #495057; color: white; 
+            text-decoration: none; padding: 12px; margin-bottom: 8px; 
+            border-radius: 5px; font-family: sans-serif; transition: 0.2s; 
+        }
+        .menu-item:hover { background: var(--vurgu-renk); padding-left: 20px; }
+        .close-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 2.5rem; border: none; background: none; cursor: pointer; }
+
+        /* --- SAYFA YAPILARI --- */
+        .page-content { display: none; flex-direction: column; align-items: center; width: 100%; flex: 1; padding-top: 20px; }
+        .page-content.active { display: flex; }
+
+        /* --- DİNİMİZ İSLAM ÖZEL --- */
+        .tarih-container { margin-bottom: 25px; }
+        .tarih { color: var(--vurgu-renk); font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+        #gun-adi { color: #888; text-transform: uppercase; letter-spacing: 3px; font-size: 0.85rem; }
+
+        .slider-container { 
+            display: flex; align-items: center; justify-content: center; 
+            max-width: 700px; 
+            width: 90%; 
+            background: white; 
+            padding: 30px 20px;
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .nasihat-box { flex: 1; padding: 0 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
+        #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: var(--ana-renk); margin-bottom: 15px; text-align: center; }
+        .alt-cizgi { border-bottom: 1px solid #eee; width: 30%; margin: 10px auto; }
+        .kaynak { font-size: 0.85rem; color: #bbb; font-style: italic; }
+
+        .nav-btn { background: none; border: 1px solid #eee; color: #ddd; font-size: 1.5rem; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .nav-btn:hover:not(:disabled) { border-color: var(--vurgu-renk); color: var(--vurgu-renk); background: #fff5f5; }
+        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+        .books-area { margin-top: 45px; width: 100%; max-width: 450px; margin-bottom: 40px; text-align: center; }
+        #book-banner { width: 85%; height: auto; cursor: pointer; transition: 0.4s; filter: grayscale(10%); }
+        #book-banner:hover { filter: grayscale(0%); transform: translateY(-5px); }
+
+        .radio-area { width: 95%; max-width: 800px; margin: 20px auto 40px; transition: 0.3s; text-align: center; }
+        #radio-banner { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; }
+
+        /* --- DRAGON HELMET ÖZEL (DEVELOPER MODE) --- */
+        .terminal-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 30px;
+            border-radius: 15px;
+            width: 85%;
+            max-width: 800px;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: left;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid #333;
+            margin-top: 40px;
+        }
+
+        /* --- ALT KISIM --- */
+        footer { 
+            padding: 25px; 
+            display: flex; flex-direction: column; align-items: center; 
+            background: white; border-top: 1px solid #eee;
+        }
+        #di-logo { max-height: 45px; height: auto; cursor: pointer; margin-bottom: 10px; }
+        .footer-notu { font-size: 0.75rem; color: #bbb; font-family: sans-serif; text-align: center; }
+
+        /* --- ADMİN --- */
+        .admin-area { background: #f0f0f0; padding: 15px; text-align: center; border-top: 1px solid #ddd; }
+        #admin-panel { display: none; padding: 15px; }
+        .admin-input { width: 85%; max-width: 320px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
+    </style>
 </head>
 <body>
 
@@ -16,27 +160,26 @@
         <div class="nav-link" onclick="switchPage('dragon', this)">Dragon Helmet</div>
     </nav>
 
-    <main id="page-islam" class="page-content active">
-        <header class="islam-header">
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-        </header>
+    <header>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    </header>
 
+    <div id="page-islam" class="page-content active">
         <div class="tarih-container">
-            <div class="tarih-sayi" id="gercek-tarih"></div>
-            <div class="gun-adi" id="gun-adi"></div>
+            <div class="tarih" id="gercek-tarih"></div>
+            <div id="gun-adi"></div>
         </div>
 
         <div class="slider-container">
-            <button class="nav-btn" onclick="degistir(-1)">❮</button>
+            <button class="nav-btn" id="prev-btn" onclick="degistir(-1)">❮</button>
             <div class="nasihat-box">
                 <p id="nasihat-metni">Yükleniyor...</p>
-                <div class="ayrac"></div>
-                <div class="kaynak-bilgi">Kaynak: Türkiye Takvimi</div>
+                <div class="alt-cizgi"></div>
+                <div class="kaynak">Kaynak: Türkiye Takvimi</div>
             </div>
-            <button class="nav-btn" onclick="degistir(1)">❯</button>
+            <button class="nav-btn" id="next-btn" onclick="degistir(1)">❯</button>
         </div>
-
-        <div id="sayfa-bilgi" style="margin-top: 10px; color: #ccc; font-size: 0.7rem;"></div>
+        <div id="sayfa-bilgi" style="margin-top: 15px; color: #ccc; font-size: 0.75rem; letter-spacing: 1px;"></div>
 
         <div class="books-area">
             <a href="https://hakikatkitabevi.net/" target="_blank">
@@ -44,76 +187,142 @@
             </a>
         </div>
 
-        <div class="radio-area" style="margin-top: 30px; width: 90%; max-width: 750px;">
+        <div class="radio-area">
             <a href="https://tgrtfm.com.tr/canli-yayin" target="_blank">
-                <img src="islam_ve_toplum_osman_unlu.png" alt="İslam ve Toplum" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <img src="islam_ve_toplum_osman_unlu.png" alt="İslam ve Toplum TGRT FM" id="radio-banner">
             </a>
         </div>
-    </main>
+    </div>
 
-    <main id="page-dragon" class="page-content">
-        <div class="terminal-window">
-            <div class="terminal-header">
-                <div class="dot red"></div>
-                <div class="dot yellow"></div>
-                <div class="dot green"></div>
-                <span class="terminal-title">dragon-helmet-terminal — bash</span>
-            </div>
-            <div class="terminal-body">
-                <p><span class="command">root@dragon:~$</span> systemctl status helmet.service</p>
-                <p><span class="comment">// Dragon Helmet Modülü Aktif Ediliyor...</span></p>
-                <p>> Geliştirme ortamı hazır.</p>
-                <p>> <span class="string">"Bu alan yeni projeler için laboratuvar olarak kullanılacaktır."</span></p>
-                <p><span class="command">root@dragon:~$</span> <span class="cursor"></span></p>
-            </div>
+    <div id="page-dragon" class="page-content">
+        <div class="terminal-box">
+            <p style="color: #569cd6;">> Initializing Dragon Helmet Project...</p>
+            <p style="color: #ce9178;">> Status: Development Phase</p>
+            <p style="color: #6a9955;">// Burası yeni fikirlerin test edileceği alandır.</p>
+            <p>> Sistem komutları bekliyor...</p>
+            <p style="margin-top: 20px;">_</p>
         </div>
-
-        <div class="dev-grid">
-            <div class="dev-card">
-                <span class="status-tag">PLANLANIYOR</span>
-                <h3>Arşiv Arama</h3>
-                <p>Geçmiş nasihatler içinde anahtar kelime ile arama yapma özelliği.</p>
-            </div>
-            <div class="dev-card">
-                <span class="status-tag">HAZIRLIK</span>
-                <h3>Dark Mode</h3>
-                <p>Tüm site için dinamik karanlık mod desteği.</p>
-            </div>
-        </div>
-    </main>
+        <div style="margin-top: 30px; color: #888;">Dragon Helmet Modülü v0.1</div>
+    </div>
 
     <div class="side-menu" id="side-menu">
-        <button onclick="toggleMenu()" style="color:white; background:none; border:none; font-size:2.5rem; cursor:pointer; position:absolute; top:20px; left:20px;">×</button>
+        <button class="close-btn" onclick="toggleMenu()">×</button>
         <a href="http://huseyinhilmiisik.com/" target="_blank" class="menu-item">Hüseyin Hilmi Işık</a>
         <a href="https://hakikatkitabevi.com/" target="_blank" class="menu-item">Hakikat Kitabevi</a>
         <a href="https://osman-unlu.com/" target="_blank" class="menu-item">Osman Ünlü</a>
         <a href="https://namazvakti.com/" target="_blank" class="menu-item">Namaz Vakti</a>
         <a href="https://dinimizislam.com/" target="_blank" class="menu-item">Dinimiz İslam</a>
+        <a href="https://turkiyegazetesi.com.tr/bizim-sayfa" target="_blank" class="menu-item">Bizim Sayfa</a>
+        <a href="https://youtube.com/@muziksizilahilertv" target="_blank" class="menu-item">Müziksiz İlahiler</a>
+        <a href="https://huzurpinari.com/" target="_blank" class="menu-item">Huzur Pınarı</a>
+        <a href="https://myreligionislam.com/" target="_blank" class="menu-item">My Religion Islam</a>
+        <a href="https://notrereligionislam.com/" target="_blank" class="menu-item">Notre Religion Islam</a>
+        <a href="https://serenityfountain.org/" target="_blank" class="menu-item">Serenity Fountain</a>
+        <a href="https://youtube.com/@gonulsultanlaritv" target="_blank" class="menu-item">Gönül Sultanları</a>
     </div>
 
     <footer>
         <a href="https://dinimizislam.com/" target="_blank">
             <img src="di-logo-1.png" alt="Dinimiz İslam" id="di-logo">
         </a>
-        <div class="footer-notu">Dragon Helmet Geliştirme Portalı - 2026</div>
+        <div class="footer-notu">Bu site Dragon Helmet geliştirilene kadar bu şekilde hizmet verecektir.</div>
     </footer>
 
-    <script src="islam.js"></script>
-    <script src="dragon.js"></script>
-    <script>
-        // Sayfa Değiştirme Mantığı
-        function switchPage(page, element) {
-            // Sayfaları gizle/göster
-            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active');
+    <div class="admin-area">
+        <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#bbb;">Yönetim</small>
+        <div id="admin-panel">
+            <input type="password" id="token" class="admin-input" placeholder="Token"> <br>
+            <input type="text" id="yeni-tarih" class="admin-input" placeholder="04-16"> <br>
+            <textarea id="yeni-metin" class="admin-input" rows="2" placeholder="Nasihat metnini girin..."></textarea> <br>
+            <button onclick="yayinla()" style="padding:10px 20px; background:var(--ana-renk); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">YAYINLA</button>
+            <p id="durum" style="font-size: 0.85rem; margin-top: 8px; font-weight: bold;"></p>
+        </div>
+    </div>
 
-            // Navigasyon linklerini güncelle
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            element.classList.add('active');
+<script>
+let bugunkuSozler = [];
+let aktifIndex = 0;
 
-            // Geçişte menüyü kapat
-            document.getElementById('side-menu').classList.remove('active');
-        }
-    </script>
+// SAYFA GEÇİŞ FONKSİYONU
+function switchPage(pageId, element) {
+    document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    element.classList.add('active');
+    
+    // Yan menüyü kapat (opsiyonel)
+    document.getElementById('side-menu').classList.remove('active');
+}
+
+function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
+
+async function veriyiYukle() {
+    const simdi = new Date();
+    document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
+
+    try {
+        const response = await fetch('arsiv.json?t=' + new Date().getTime());
+        const veriler = await response.json();
+        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
+        const data = veriler[anahtar];
+        bugunkuSozler = Array.isArray(data) ? data : (data ? [data] : []);
+        goster();
+    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv dosyası yüklenemedi."; }
+}
+
+function goster() {
+    if (bugunkuSozler.length === 0) {
+        document.getElementById('nasihat-metni').innerText = "Bugün için kayıt bulunamadı.";
+        document.getElementById('prev-btn').style.visibility = 'hidden';
+        document.getElementById('next-btn').style.visibility = 'hidden';
+        return;
+    }
+    document.getElementById('prev-btn').style.visibility = 'visible';
+    document.getElementById('next-btn').style.visibility = 'visible';
+    document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
+    document.getElementById('sayfa-bilgi').innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
+    document.getElementById('prev-btn').disabled = aktifIndex === 0;
+    document.getElementById('next-btn').disabled = aktifIndex === bugunkuSozler.length - 1;
+}
+
+function degistir(yon) { aktifIndex += yon; goster(); }
+
+async function yayinla() {
+    const token = document.getElementById('token').value;
+    const tarih = document.getElementById('yeni-tarih').value;
+    const metin = document.getElementById('yeni-metin').value;
+    const durum = document.getElementById('durum');
+    if(!token || !tarih || !metin) { durum.innerText = "Eksik alan!"; return; }
+
+    const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/arsiv.json`;
+
+    try {
+        durum.innerText = "İşleniyor...";
+        const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+        const fileData = await res.json();
+        let decodedContent = decodeURIComponent(atob(fileData.content).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        let content = JSON.parse(decodedContent);
+        if (!Array.isArray(content[tarih])) content[tarih] = content[tarih] ? [content[tarih], metin] : [metin];
+        else content[tarih].push(metin);
+        
+        const yeniIcerikBase64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g,
+            function(match, p1) { return String.fromCharCode('0x' + p1); }));
+
+        const update = await fetch(url, {
+            method: "PUT",
+            headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: `${tarih} eklendi`, content: yeniIcerikBase64, sha: fileData.sha })
+        });
+        if(update.ok) { durum.style.color = "green"; durum.innerText = "Başarıyla Yayınlandı!"; }
+        else { durum.style.color = "red"; durum.innerText = "Yayınlanamadı!"; }
+    } catch (e) { durum.innerText = "Hata!"; }
+}
+veriyiYukle();
+</script>
 </body>
 </html>
