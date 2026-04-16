@@ -1,15 +1,48 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Helmet</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #1a1a1a; color: gold; }
-        h1 { border: 2px solid gold; padding: 20px; border-radius: 10px; }
-    </style>
-</head>
-<body>
-    <h1>DRAGON HELMET YAYINDA! 🐉</h1>
-</body>
-</html>
+<div class="nasihat-karti" style="text-align: center; border-top: 3px solid #2c3e50;">
+    <h3 id="takvim-tarih" style="color: #c0392b; font-size: 0.9rem;"></h3>
+    <p id="gunun-nasihati" style="font-style: italic; font-size: 1.2rem; min-height: 60px;">Yükleniyor...</p>
+    <div id="gunun-olayi" style="font-size: 0.8rem; color: #666; border-top: 1px dotted #ccc; padding-top: 10px;"></div>
+</div>
+
+<script>
+const takvimVerisi = {
+    "04-16": {
+        nasihat: "Misvak kullanmam bana o kadar emredildi ki, üzerime farz kılınacağından korktum. Hadîs-i şerîf",
+        olay: "Anayasa değişikliği referandumla kabul edildi (2017)"
+    },
+    "04-17": {
+        nasihat: "YENİ HİLÂL: Zil-ka'de ayının hilâli bu gece yarısından sonra ilk defa görülecektir.",
+        olay: "Turgut Özal (1993) ve Prof. Ali Fuat Başgil'in (1967) vefâtları"
+    },
+    "04-18": {
+        nasihat: "Ne mutlu beni görüp, sonra bana îmân edene! Ne mutlu beni görmeyip de, bana îmân edene! Hadîs-i şerîf",
+        olay: "Genel ve Mahallî seçimler (1999) - Türk-Yunan Harbi'nin başlaması (1897)"
+    },
+    "04-19": {
+        nasihat: "Allah adamları ile sohbet aklı artırır. Alâeddîn-i Attâr 'Rahmetullahi aleyh'",
+        olay: "Rusların Trabzon'u işgâli (1916)"
+    }
+    // Buraya aynı formatta 365 günü ekleyebilirsin.
+};
+
+function takvimiGuncelle() {
+    const simdi = new Date();
+    const ay = String(simdi.getMonth() + 1).padStart(2, '0');
+    const gun = String(simdi.getDate()).padStart(2, '0');
+    const anahtar = `${ay}-${gun}`;
+
+    const bugun = takvimVerisi[anahtar];
+
+    if (bugun) {
+        document.getElementById('takvim-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' });
+        document.getElementById('gunun-nasihati').innerText = bugun.nasihat;
+        document.getElementById('gunun-olayi').innerText = bugun.olay;
+    } else {
+        document.getElementById('gunun-nasihati').innerText = "Hikmetli sözler arşivi güncelleniyor...";
+    }
+}
+
+// Sayfa açıldığında çalıştır
+takvimiGuncelle();
+</script>
+
