@@ -4,21 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dragon Helmet - Hikmetli Sözler</title>
-    
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- TASARIM (CSS) --- */
+        body { font-family: 'Georgia', serif; background: #fdfdfd; color: #333; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        
+        header { display: flex; justify-content: center; align-items: center; padding: 15px; border-bottom: 1px solid #eee; position: relative; background: white; }
+        #book-banner { max-width: 85%; height: auto; cursor: pointer; transition: 0.3s; }
+        #book-banner:hover { opacity: 0.8; }
+
+        .menu-toggle { position: absolute; right: 20px; font-size: 2rem; cursor: pointer; background: none; border: none; color: #c0392b; z-index: 1000; outline: none; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+        #gun-adi { color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+
+        .slider-container { display: flex; align-items: center; justify-content: center; max-width: 800px; width: 100%; position: relative; }
+        .nasihat-box { flex: 1; padding: 20px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
+        #nasihat-metni { font-size: 1.6rem; line-height: 1.5; color: #2c3e50; margin-bottom: 20px; }
+        
+        .alt-cizgi { border-bottom: 1px solid #eee; width: 60%; margin: 10px auto; }
+        .kaynak { font-size: 0.9rem; color: #999; font-style: italic; }
+
+        .nav-btn { background: none; border: 2px solid #eee; color: #ccc; font-size: 2rem; cursor: pointer; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: 0.3s; outline: none; }
+        .nav-btn:hover:not(:disabled) { border-color: #c0392b; color: #c0392b; }
+        .nav-btn:disabled { opacity: 0.1; cursor: not-allowed; }
+
+        footer { display: flex; justify-content: center; padding: 20px; border-top: 1px solid #eee; background: white; }
+        #di-logo { max-height: 70px; height: auto; cursor: pointer; }
+
+        /* YAN MENÜ STİLLERİ */
+        .side-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: #343a40; box-shadow: -5px 0 15px rgba(0,0,0,0.5); transition: 0.4s; z-index: 999; padding: 70px 20px 20px; overflow-y: auto; }
+        .side-menu.active { right: 0; }
+        .menu-item { display: block; background: #495057; color: white; text-decoration: none; padding: 15px; margin-bottom: 10px; border-radius: 5px; font-family: sans-serif; transition: 0.3s; font-size: 1.1rem; }
+        .menu-item:hover { background: #c0392b; }
+        .close-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 2rem; cursor: pointer; border: none; background: none; }
+
+        /* ADMİN */
+        .admin-area { background: #eee; padding: 20px; border-top: 1px solid #ccc; font-family: sans-serif; text-align: center; }
+        #admin-panel { display: none; margin-top: 15px; }
+        .admin-input { width: 90%; max-width: 350px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
+    </style>
 </head>
 <body>
 
     <header>
         <a href="https://hakikatkitabevi.net/" target="_blank">
-            <img src="images/hakikat-kitaplari.jpg" alt="Hakikat Kitabevi Yayınları" id="book-banner">
+            <img src="B000.png" alt="Hakikat Kitabevi" id="book-banner">
         </a>
-        
         <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     </header>
 
     <div class="side-menu" id="side-menu">
-        <button class="close-menu" onclick="toggleMenu()">×</button>
+        <button class="close-btn" onclick="toggleMenu()">×</button>
         <a href="http://huseyinhilmiisik.com/" target="_blank" class="menu-item">Hüseyin Hilmi Işık</a>
         <a href="https://hakikatkitabevi.com/" target="_blank" class="menu-item">Hakikat Kitabevi</a>
         <a href="https://osman-unlu.com/" target="_blank" class="menu-item">Osman Ünlü</a>
@@ -32,10 +69,8 @@
     </div>
 
     <div class="main-content">
-        <div class="tarih-alan">
-            <div class="tarih" id="gercek-tarih"></div>
-            <div id="gun-adi"></div>
-        </div>
+        <div class="tarih" id="gercek-tarih"></div>
+        <div id="gun-adi"></div>
 
         <div class="slider-container">
             <button class="nav-btn" id="prev-btn" onclick="degistir(-1)">❮</button>
@@ -51,7 +86,7 @@
 
     <footer>
         <a href="https://dinimizislam.com/" target="_blank">
-            <img src="images/dinimiz-islam-logo.jpg" alt="Dinimiz İslam" id="di-logo">
+            <img src="di-logo-1.png" alt="Dinimiz İslam" id="di-logo">
         </a>
     </footer>
 
@@ -67,9 +102,10 @@
     </div>
 
 <script>
-// --- ZİYARETÇİ SCRIPTİ (Aynı Kalıyor) ---
 let bugunkuSozler = [];
 let aktifIndex = 0;
+
+function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
 
 async function veriyiYukle() {
     const simdi = new Date();
@@ -80,63 +116,47 @@ async function veriyiYukle() {
         const response = await fetch('arsiv.json?t=' + new Date().getTime());
         const veriler = await response.json();
         const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
-        
         const data = veriler[anahtar];
         bugunkuSozler = Array.isArray(data) ? data : (data ? [data] : []);
         goster();
-    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv dosyası henüz oluşturulmamış."; }
+    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv dosyası okunamadı."; }
 }
 
 function goster() {
     if (bugunkuSozler.length === 0) {
-        document.getElementById('nasihat-metni').innerText = "Bugün için bir hikmetli söz eklenmemiş.";
+        document.getElementById('nasihat-metni').innerText = "Bugün için bir kayıt bulunamadı.";
         document.getElementById('prev-btn').style.visibility = 'hidden';
         document.getElementById('next-btn').style.visibility = 'hidden';
         return;
     }
-    
     document.getElementById('prev-btn').style.visibility = 'visible';
     document.getElementById('next-btn').style.visibility = 'visible';
     document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
     document.getElementById('sayfa-bilgi').innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
-    
     document.getElementById('prev-btn').disabled = aktifIndex === 0;
     document.getElementById('next-btn').disabled = aktifIndex === bugunkuSozler.length - 1;
 }
 
 function degistir(yon) { aktifIndex += yon; goster(); }
 
-// --- MENÜ KONTROLÜ (Sistem 3) ---
-function toggleMenu() {
-    const menu = document.getElementById('side-menu');
-    menu.classList.toggle('active');
-}
-
-// --- ADMİN SCRIPTİ (Zırhlı/UTF-8 Güvenli Versiyon, Değişmiyor) ---
 async function yayinla() {
     const token = document.getElementById('token').value;
     const tarih = document.getElementById('yeni-tarih').value;
     const metin = document.getElementById('yeni-metin').value;
     const durum = document.getElementById('durum');
-    
-    if(!token || !tarih || !metin) { durum.innerText = "Alanları doldurun!"; return; }
+    if(!token || !tarih || !metin) { durum.innerText = "Eksik alan var!"; return; }
 
-    const user = "talhacelikozgen"; 
-    const repo = "DragonWeb";
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/arsiv.json`;
+    const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/arsiv.json`;
 
     try {
-        durum.style.color = "blue";
-        durum.innerText = "GitHub'a bağlanılıyor...";
+        durum.innerText = "Yükleniyor...";
         const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
         const fileData = await res.json();
-        
         let decodedContent = decodeURIComponent(atob(fileData.content).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
 
         let content = JSON.parse(decodedContent);
-
         if (!Array.isArray(content[tarih])) { content[tarih] = content[tarih] ? [content[tarih], metin] : [metin]; }
         else { content[tarih].push(metin); }
         
@@ -146,12 +166,11 @@ async function yayinla() {
         const update = await fetch(url, {
             method: "PUT",
             headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: `${tarih} tarihine eklendi`, content: yeniIcerikBase64, sha: fileData.sha })
+            body: JSON.stringify({ message: `${tarih} eklendi`, content: yeniIcerikBase64, sha: fileData.sha })
         });
 
-        if(update.ok) { durum.style.color = "green"; durum.innerText = "Yayınlandı! Sayfayı yenileyin."; }
-        else { throw new Error(); }
-    } catch (e) { durum.style.color = "red"; durum.innerText = "Hata! Bilgileri kontrol edin."; }
+        if(update.ok) { durum.innerText = "Başarıyla yayınlandı!"; }
+    } catch (e) { durum.innerText = "Hata oluştu!"; }
 }
 
 veriyiYukle();
