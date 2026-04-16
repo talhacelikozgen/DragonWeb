@@ -30,3 +30,140 @@
     <div class="main-content">
         <div class="tarih" id="gercek-tarih"></div>
         <div id="gun-adi" style="color: #888; margin-bottom: 20px;"></div>
+        
+        <div class="slider-container">
+            <button class="nav-btn" id="prev-btn" onclick="degistir(-1)">❮</button>
+            
+            <div class="nasihat-box">
+                <p id="nasihat-metni">Yükleniyor...</p>
+                <div class="alt-cizgi"></div>
+                <div class="kaynak">Kaynak: Türkiye Takvimi</div>
+            </div>
+
+            <button class="nav-btn" id="next-btn" onclick="degistir(1)">❯</button>
+        </div>
+        <div id="sayfa-bilgi" style="margin-top: 10px; color: #bbb; font-size: 0.8rem;"></div>
+    </div>
+
+    <div class="admin-area">
+        <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#aaa;">Yönetim Paneli</small>
+        <div id="admin-panel">
+            <input type="password" id="token" class="admin-input" placeholder="GitHub Token"> <br>
+            <input type="text" id="yeni-tarih" class="admin-input" placeholder="Tarih (Örn: 04-16)"> <br>
+            <textarea id="yeni-metin" class="admin-input" rows="3" placeholder="Yeni Nasihat"></textarea> <br>
+            <button onclick="yayinla()" style="padding:10px 20px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">Yayınla</button>
+            <p id="durum" style="font-size: 0.9rem; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+<script>
+let bugunkuSozler = [];
+let aktifIndex = 0;
+
+async function veriyiYukle() {
+    const simdi = new Date();
+    document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
+
+    try {
+        const response = await fetch('arsiv.json?t=' + new Date().getTime());
+        const veriler = await response.json();
+        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
+        
+        const data = veriler[anahtar];
+        bugunkuSozler = Array.isArray(data) ? data : (data ? [data] : []);
+        
+        goster();
+    } catch (e) { 
+        document.getElementById('nasihat-metni').innerText = "Arşiv dosyası henüz oluşturulmamış veya boş."; 
+    }
+}
+
+function goster() {
+    if (bugunkuSozler.length === 0) {
+        document.getElementById('nasihat-metni').innerText = "Bugün için bir kayıt bulunamadı.";
+        document.getElementById('prev-btn').style.visibility = 'hidden';
+        document.getElementById('next-btn').style.visibility = 'hidden';
+        return;
+    }
+    
+    document.getElementById('prev-btn').style.visibility = 'visible';
+    document.getElementById('next-btn').style.visibility = 'visible';
+    document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
+    document.getElementById('sayfa-bilgi').innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
+    
+    document.getElementById('prev-btn').disabled = aktifIndex === 0;
+    document.getElementById('next-btn').disabled = aktifIndex === bugunkuSozler.length - 1;
+}
+
+function degistir(yon) {
+    aktifIndex += yon;
+    goster();
+}
+
+// KARAKTER SORUNUNU ÇÖZEN YENİ YAYINLA FONKSİYONU
+async function yayinla() {
+    const token = document.getElementById('token').value;
+    const tarih = document.getElementById('yeni-tarih').value;
+    const metin = document.getElementById('yeni-metin').value;
+    const durum = document.getElementById('durum');
+    
+    if(!token || !tarih || !metin) { durum.innerText = "Lütfen tüm alanları doldurun!"; return; }
+
+    const user = "talhacelikozgen"; 
+    const repo = "DragonWeb";
+    const url = `https://api.github.com/repos/${user}/${repo}/contents/arsiv.json`;
+
+    try {
+        durum.style.color = "blue";
+        durum.innerText = "GitHub'a bağlanılıyor...";
+        
+        const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+        const fileData = await res.json();
+        
+        // UTF-8 GÜVENLİ DECODE (atob yerine)
+        let decodedContent = decodeURIComponent(atob(fileData.content).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        let content = JSON.parse(decodedContent);
+
+        if (!Array.isArray(content[tarih])) {
+            content[tarih] = content[tarih] ? [content[tarih], metin] : [metin];
+        } else {
+            content[tarih].push(metin);
+        }
+        
+        // UTF-8 GÜVENLİ ENCODE (btoa yerine)
+        const yeniIcerikBase64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g,
+            function(match, p1) {
+                return String.fromCharCode('0x' + p1);
+        }));
+
+        const update = await fetch(url, {
+            method: "PUT",
+            headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: `${tarih} tarihine yeni nasihat eklendi`,
+                content: yeniIcerikBase64,
+                sha: fileData.sha
+            })
+        });
+
+        if(update.ok) { 
+            durum.style.color = "green";
+            durum.innerText = "Başarıyla yayınlandı! Sayfayı 1-2 dk sonra yenileyin."; 
+        } else {
+            durum.style.color = "red";
+            durum.innerText = "Yayınlama hatası! Token yetkisini kontrol edin.";
+        }
+    } catch (e) { 
+        durum.style.color = "red";
+        durum.innerText = "Bağlantı hatası!"; 
+    }
+}
+
+veriyiYukle();
+</script>
+</body>
+</html>
