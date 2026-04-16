@@ -9,7 +9,7 @@
         :root {
             --ana-renk: #2c3e50;
             --vurgu-renk: #c0392b;
-            --arka-plan: #f4f7f6; /* Biraz daha yumuşak bir gri-beyaz */
+            --arka-plan: #f4f7f6;
         }
 
         body { 
@@ -23,11 +23,11 @@
             overflow-x: hidden; 
         }
 
-        /* --- ÜST KISIM (Menü ve Boşluk) --- */
+        /* --- ÜST KISIM --- */
         header { 
             display: flex; 
-            justify-content: flex-end; /* Sadece menü butonunu sağa yasla */
-            padding: 20px 40px; 
+            justify-content: flex-end; 
+            padding: 15px 30px; 
             position: relative;
         }
 
@@ -38,8 +38,9 @@
             border: none; 
             color: #555; 
             outline: none; 
-            z-index: 100;
+            transition: 0.3s;
         }
+        .menu-toggle:hover { color: var(--vurgu-renk); }
 
         /* --- YAN MENÜ --- */
         .side-menu { 
@@ -53,59 +54,77 @@
         .menu-item { 
             display: block; background: #495057; color: white; 
             text-decoration: none; padding: 12px; margin-bottom: 8px; 
-            border-radius: 5px; font-family: sans-serif; transition: 0.3s; 
+            border-radius: 5px; font-family: sans-serif; transition: 0.2s; 
         }
-        .menu-item:hover { background: var(--vurgu-renk); }
-        .close-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 2rem; border: none; background: none; cursor: pointer; }
+        .menu-item:hover { background: var(--vurgu-renk); padding-left: 20px; }
+        .close-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 2.5rem; border: none; background: none; cursor: pointer; }
 
-        /* --- ANA İÇERİK (KÜÇÜLTÜLMÜŞ VE SIRALANMIŞ) --- */
+        /* --- ANA İÇERİK --- */
         .main-content { 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            padding-top: 50px; /* Yukarıdan boşluk verildi */
+            padding-top: 40px; 
             text-align: center; 
         }
 
-        /* Tarih Kısmı */
-        .tarih-container { margin-bottom: 30px; }
-        .tarih { color: var(--vurgu-renk); font-weight: bold; font-size: 1.1rem; }
-        #gun-adi { color: #888; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; }
+        .tarih-container { margin-bottom: 25px; }
+        .tarih { color: var(--vurgu-renk); font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+        #gun-adi { color: #888; text-transform: uppercase; letter-spacing: 3px; font-size: 0.85rem; }
 
-        /* Nasihat Kutusu (Küçültüldü) */
         .slider-container { 
             display: flex; align-items: center; justify-content: center; 
-            max-width: 650px; /* Bilgisayarda çok yayılmaması için küçültüldü */
-            width: 90%; position: relative; 
-            background: white; padding: 20px;
-            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 700px; 
+            width: 90%; 
+            background: white; 
+            padding: 30px 20px;
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
         }
-        .nasihat-box { flex: 1; padding: 10px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
-        #nasihat-metni { font-size: 1.3rem; line-height: 1.6; color: var(--ana-renk); margin-bottom: 10px; }
-        .alt-cizgi { border-bottom: 1px solid #eee; width: 40%; margin: 10px auto; }
-        .kaynak { font-size: 0.8rem; color: #aaa; font-style: italic; }
+        .nasihat-box { flex: 1; padding: 0 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
+        #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: var(--ana-renk); margin-bottom: 15px; }
+        .alt-cizgi { border-bottom: 1px solid #eee; width: 30%; margin: 10px auto; }
+        .kaynak { font-size: 0.85rem; color: #bbb; font-style: italic; }
 
-        .nav-btn { background: none; border: 1px solid #eee; color: #ccc; font-size: 1.5rem; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; transition: 0.3s; }
-        .nav-btn:hover:not(:disabled) { border-color: var(--vurgu-renk); color: var(--vurgu-renk); }
+        .nav-btn { background: none; border: 1px solid #eee; color: #ddd; font-size: 1.5rem; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .nav-btn:hover:not(:disabled) { border-color: var(--vurgu-renk); color: var(--vurgu-renk); background: #fff5f5; }
+        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
-        /* Kitap Logosu (Nasihatin Altına Alındı) */
-        .books-area { margin-top: 40px; width: 100%; max-width: 500px; }
-        #book-banner { width: 80%; height: auto; cursor: pointer; transition: 0.3s; opacity: 0.9; }
-        #book-banner:hover { opacity: 1; transform: scale(1.02); }
+        .books-area { margin-top: 45px; width: 100%; max-width: 450px; margin-bottom: 40px; }
+        #book-banner { width: 85%; height: auto; cursor: pointer; transition: 0.4s; filter: grayscale(10%); }
+        #book-banner:hover { filter: grayscale(0%); transform: translateY(-5px); }
+
+        /* --- İSLAM VE TOPLUM BANNER (YENİ) --- */
+        .radio-area { 
+            width: 95%; 
+            max-width: 800px; 
+            margin: 20px auto 40px; 
+            transition: 0.3s;
+        }
+        #radio-banner { 
+            width: 100%; 
+            height: auto; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .radio-area:hover { transform: scale(1.02); }
 
         /* --- ALT KISIM --- */
         footer { 
-            margin-top: 50px; padding: 30px; 
+            padding: 25px; 
             display: flex; flex-direction: column; align-items: center; 
+            background: white; border-top: 1px solid #eee;
         }
-        #di-logo { max-height: 40px; height: auto; cursor: pointer; margin-bottom: 10px; }
-        .footer-notu { font-size: 0.7rem; color: #bbb; font-family: sans-serif; }
+        #di-logo { max-height: 45px; height: auto; cursor: pointer; margin-bottom: 10px; }
+        .footer-notu { font-size: 0.75rem; color: #bbb; font-family: sans-serif; text-align: center; }
 
         /* --- ADMİN --- */
-        .admin-area { background: #f0f0f0; padding: 10px; text-align: center; }
-        #admin-panel { display: none; padding: 20px; }
-        .admin-input { width: 80%; max-width: 300px; padding: 8px; margin: 5px; border-radius: 5px; border: 1px solid #ddd; }
+        .admin-area { background: #f0f0f0; padding: 15px; text-align: center; border-top: 1px solid #ddd; }
+        #admin-panel { display: none; padding: 15px; }
+        .admin-input { width: 85%; max-width: 320px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -145,11 +164,17 @@
             </div>
             <button class="nav-btn" id="next-btn" onclick="degistir(1)">❯</button>
         </div>
-        <div id="sayfa-bilgi" style="margin-top: 10px; color: #bbb; font-size: 0.7rem;"></div>
+        <div id="sayfa-bilgi" style="margin-top: 15px; color: #ccc; font-size: 0.75rem; letter-spacing: 1px;"></div>
 
         <div class="books-area">
             <a href="https://hakikatkitabevi.net/" target="_blank">
                 <img src="B000.png" alt="Hakikat Kitabevi" id="book-banner">
+            </a>
+        </div>
+
+        <div class="radio-area">
+            <a href="https://tgrtfm.com.tr/canli-yayin" target="_blank">
+                <img src="islam_ve_toplum_osman_unlu.png" alt="İslam ve Toplum TGRT FM" id="radio-banner">
             </a>
         </div>
     </div>
@@ -162,13 +187,13 @@
     </footer>
 
     <div class="admin-area">
-        <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#ccc;">Yönetim</small>
+        <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#bbb;">Yönetim</small>
         <div id="admin-panel">
             <input type="password" id="token" class="admin-input" placeholder="Token"> <br>
             <input type="text" id="yeni-tarih" class="admin-input" placeholder="04-16"> <br>
-            <textarea id="yeni-metin" class="admin-input" rows="2" placeholder="Nasihat"></textarea> <br>
-            <button onclick="yayinla()" style="padding:8px 15px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">Yayınla</button>
-            <p id="durum" style="font-size: 0.8rem; margin-top: 5px;"></p>
+            <textarea id="yeni-metin" class="admin-input" rows="2" placeholder="Nasihat metnini girin..."></textarea> <br>
+            <button onclick="yayinla()" style="padding:10px 20px; background:var(--ana-renk); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">YAYINLA</button>
+            <p id="durum" style="font-size: 0.85rem; margin-top: 8px; font-weight: bold;"></p>
         </div>
     </div>
 
@@ -190,18 +215,18 @@ async function veriyiYukle() {
         const data = veriler[anahtar];
         bugunkuSozler = Array.isArray(data) ? data : (data ? [data] : []);
         goster();
-    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv yüklenemedi."; }
+    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv dosyası yüklenemedi."; }
 }
 
 function goster() {
     if (bugunkuSozler.length === 0) {
         document.getElementById('nasihat-metni').innerText = "Bugün için kayıt bulunamadı.";
-        document.getElementById('prev-btn').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('prev-btn').style.visibility = 'hidden';
+        document.getElementById('next-btn').style.visibility = 'hidden';
         return;
     }
-    document.getElementById('prev-btn').style.display = 'block';
-    document.getElementById('next-btn').style.display = 'block';
+    document.getElementById('prev-btn').style.visibility = 'visible';
+    document.getElementById('next-btn').style.visibility = 'visible';
     document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
     document.getElementById('sayfa-bilgi').innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
     document.getElementById('prev-btn').disabled = aktifIndex === 0;
@@ -215,12 +240,12 @@ async function yayinla() {
     const tarih = document.getElementById('yeni-tarih').value;
     const metin = document.getElementById('yeni-metin').value;
     const durum = document.getElementById('durum');
-    if(!token || !tarih || !metin) return;
+    if(!token || !tarih || !metin) { durum.innerText = "Eksik alan!"; return; }
 
     const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/arsiv.json`;
 
     try {
-        durum.innerText = "Yükleniyor...";
+        durum.innerText = "İşleniyor...";
         const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
         const fileData = await res.json();
         let decodedContent = decodeURIComponent(atob(fileData.content).split('').map(function(c) {
@@ -239,7 +264,8 @@ async function yayinla() {
             headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
             body: JSON.stringify({ message: `${tarih} eklendi`, content: yeniIcerikBase64, sha: fileData.sha })
         });
-        if(update.ok) durum.innerText = "Başarılı!";
+        if(update.ok) { durum.style.color = "green"; durum.innerText = "Başarıyla Yayınlandı!"; }
+        else { durum.style.color = "red"; durum.innerText = "Yayınlanamadı!"; }
     } catch (e) { durum.innerText = "Hata!"; }
 }
 veriyiYukle();
