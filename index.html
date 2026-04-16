@@ -4,46 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dragon Helmet - Hikmetli Sözler</title>
-    <style>
-        body { font-family: 'Georgia', serif; background: #fdfdfd; color: #333; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
-        
-        .slider-container { display: flex; align-items: center; justify-content: center; max-width: 800px; width: 100%; position: relative; }
-        .nasihat-box { flex: 1; padding: 30px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
-        #nasihat-metni { font-size: 1.6rem; line-height: 1.5; color: #2c3e50; margin-bottom: 20px; }
-        
-        .alt-cizgi { border-bottom: 1px solid #eee; width: 60%; margin: 10px auto; }
-        .kaynak { font-size: 0.9rem; color: #999; font-style: italic; }
-
-        .nav-btn { background: none; border: 2px solid #eee; color: #ccc; font-size: 2rem; cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.3s; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; outline: none; }
-        .nav-btn:hover:not(:disabled) { border-color: #c0392b; color: #c0392b; }
-        .nav-btn:disabled { opacity: 0.1; cursor: not-allowed; }
-
-        .admin-area { background: #eee; padding: 20px; border-top: 1px solid #ccc; font-family: sans-serif; text-align: center; }
-        #admin-panel { display: none; margin-top: 15px; }
-        .admin-input { width: 90%; max-width: 350px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
-    </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="main-content">
-        <div class="tarih" id="gercek-tarih"></div>
-        <div id="gun-adi" style="color: #888; margin-bottom: 20px;"></div>
+    <header>
+        <a href="https://hakikatkitabevi.net/" target="_blank">
+            <img src="images/hakikat-kitaplari.jpg" alt="Hakikat Kitabevi Yayınları" id="book-banner">
+        </a>
         
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    </header>
+
+    <div class="side-menu" id="side-menu">
+        <button class="close-menu" onclick="toggleMenu()">×</button>
+        <a href="http://huseyinhilmiisik.com/" target="_blank" class="menu-item">Hüseyin Hilmi Işık</a>
+        <a href="https://hakikatkitabevi.com/" target="_blank" class="menu-item">Hakikat Kitabevi</a>
+        <a href="https://osman-unlu.com/" target="_blank" class="menu-item">Osman Ünlü</a>
+        <a href="https://namazvakti.com/" target="_blank" class="menu-item">Namaz Vakti</a>
+        <a href="https://dinimizislam.com/" target="_blank" class="menu-item">Dinimiz İslam</a>
+        <a href="https://youtube.com/@muziksizilahilertv" target="_blank" class="menu-item">Müziksiz İlahiler</a>
+        <a href="https://huzurpinari.com/" target="_blank" class="menu-item">Huzur Pınarı</a>
+        <a href="https://myreligionislam.com/" target="_blank" class="menu-item">My Religion Islam</a>
+        <a href="https://notrereligionislam.com/" target="_blank" class="menu-item">Notre Religion Islam</a>
+        <a href="https://serenityfountain.org/" target="_blank" class="menu-item">Serenity Fountain</a>
+    </div>
+
+    <div class="main-content">
+        <div class="tarih-alan">
+            <div class="tarih" id="gercek-tarih"></div>
+            <div id="gun-adi"></div>
+        </div>
+
         <div class="slider-container">
             <button class="nav-btn" id="prev-btn" onclick="degistir(-1)">❮</button>
-            
             <div class="nasihat-box">
                 <p id="nasihat-metni">Yükleniyor...</p>
                 <div class="alt-cizgi"></div>
                 <div class="kaynak">Kaynak: Türkiye Takvimi</div>
             </div>
-
             <button class="nav-btn" id="next-btn" onclick="degistir(1)">❯</button>
         </div>
         <div id="sayfa-bilgi" style="margin-top: 10px; color: #bbb; font-size: 0.8rem;"></div>
     </div>
+
+    <footer>
+        <a href="https://dinimizislam.com/" target="_blank">
+            <img src="images/dinimiz-islam-logo.jpg" alt="Dinimiz İslam" id="di-logo">
+        </a>
+    </footer>
 
     <div class="admin-area">
         <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#aaa;">Yönetim Paneli</small>
@@ -57,6 +67,7 @@
     </div>
 
 <script>
+// --- ZİYARETÇİ SCRIPTİ (Aynı Kalıyor) ---
 let bugunkuSozler = [];
 let aktifIndex = 0;
 
@@ -72,16 +83,13 @@ async function veriyiYukle() {
         
         const data = veriler[anahtar];
         bugunkuSozler = Array.isArray(data) ? data : (data ? [data] : []);
-        
         goster();
-    } catch (e) { 
-        document.getElementById('nasihat-metni').innerText = "Arşiv dosyası henüz oluşturulmamış veya boş."; 
-    }
+    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv dosyası henüz oluşturulmamış."; }
 }
 
 function goster() {
     if (bugunkuSozler.length === 0) {
-        document.getElementById('nasihat-metni').innerText = "Bugün için bir kayıt bulunamadı.";
+        document.getElementById('nasihat-metni').innerText = "Bugün için bir hikmetli söz eklenmemiş.";
         document.getElementById('prev-btn').style.visibility = 'hidden';
         document.getElementById('next-btn').style.visibility = 'hidden';
         return;
@@ -96,19 +104,22 @@ function goster() {
     document.getElementById('next-btn').disabled = aktifIndex === bugunkuSozler.length - 1;
 }
 
-function degistir(yon) {
-    aktifIndex += yon;
-    goster();
+function degistir(yon) { aktifIndex += yon; goster(); }
+
+// --- MENÜ KONTROLÜ (Sistem 3) ---
+function toggleMenu() {
+    const menu = document.getElementById('side-menu');
+    menu.classList.toggle('active');
 }
 
-// KARAKTER SORUNUNU ÇÖZEN YENİ YAYINLA FONKSİYONU
+// --- ADMİN SCRIPTİ (Zırhlı/UTF-8 Güvenli Versiyon, Değişmiyor) ---
 async function yayinla() {
     const token = document.getElementById('token').value;
     const tarih = document.getElementById('yeni-tarih').value;
     const metin = document.getElementById('yeni-metin').value;
     const durum = document.getElementById('durum');
     
-    if(!token || !tarih || !metin) { durum.innerText = "Lütfen tüm alanları doldurun!"; return; }
+    if(!token || !tarih || !metin) { durum.innerText = "Alanları doldurun!"; return; }
 
     const user = "talhacelikozgen"; 
     const repo = "DragonWeb";
@@ -117,50 +128,30 @@ async function yayinla() {
     try {
         durum.style.color = "blue";
         durum.innerText = "GitHub'a bağlanılıyor...";
-        
         const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
         const fileData = await res.json();
         
-        // UTF-8 GÜVENLİ DECODE (atob yerine)
         let decodedContent = decodeURIComponent(atob(fileData.content).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
 
         let content = JSON.parse(decodedContent);
 
-        if (!Array.isArray(content[tarih])) {
-            content[tarih] = content[tarih] ? [content[tarih], metin] : [metin];
-        } else {
-            content[tarih].push(metin);
-        }
+        if (!Array.isArray(content[tarih])) { content[tarih] = content[tarih] ? [content[tarih], metin] : [metin]; }
+        else { content[tarih].push(metin); }
         
-        // UTF-8 GÜVENLİ ENCODE (btoa yerine)
         const yeniIcerikBase64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g,
-            function(match, p1) {
-                return String.fromCharCode('0x' + p1);
-        }));
+            function(match, p1) { return String.fromCharCode('0x' + p1); }));
 
         const update = await fetch(url, {
             method: "PUT",
             headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: `${tarih} tarihine yeni nasihat eklendi`,
-                content: yeniIcerikBase64,
-                sha: fileData.sha
-            })
+            body: JSON.stringify({ message: `${tarih} tarihine eklendi`, content: yeniIcerikBase64, sha: fileData.sha })
         });
 
-        if(update.ok) { 
-            durum.style.color = "green";
-            durum.innerText = "Başarıyla yayınlandı! Sayfayı 1-2 dk sonra yenileyin."; 
-        } else {
-            durum.style.color = "red";
-            durum.innerText = "Yayınlama hatası! Token yetkisini kontrol edin.";
-        }
-    } catch (e) { 
-        durum.style.color = "red";
-        durum.innerText = "Bağlantı hatası!"; 
-    }
+        if(update.ok) { durum.style.color = "green"; durum.innerText = "Yayınlandı! Sayfayı yenileyin."; }
+        else { throw new Error(); }
+    } catch (e) { durum.style.color = "red"; durum.innerText = "Hata! Bilgileri kontrol edin."; }
 }
 
 veriyiYukle();
