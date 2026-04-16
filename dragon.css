@@ -1,0 +1,121 @@
+/* --- DRAGON HELMET SAYFASI ANA KONTEYNER --- */
+#page-dragon {
+    display: none; /* Başlangıçta gizli, JS ile açılacak */
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 80vh;
+    padding-top: 40px;
+    background-color: #0f0f0f; /* Çok koyu gri/siyah arka plan */
+    color: #e0e0e0;
+}
+
+/* Sayfa Aktif Olduğunda Flex Olur */
+#page-dragon[style*="display: flex"] {
+    display: flex !important;
+}
+
+/* Terminal / Kod Kutusu Tasarımı */
+.terminal-window {
+    width: 90%;
+    max-width: 900px;
+    background: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+    overflow: hidden;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    margin-bottom: 30px;
+}
+
+/* Terminal Üst Barı (Kapatma/Büyütme Butonları Görünümü) */
+.terminal-header {
+    background: #323233;
+    padding: 10px 15px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.red { background: #ff5f56; }
+.yellow { background: #ffbd2e; }
+.green { background: #27c93f; }
+
+.terminal-title {
+    margin-left: 10px;
+    font-size: 13px;
+    color: #999;
+    letter-spacing: 1px;
+}
+
+/* Terminal İçerik Alanı */
+.terminal-body {
+    padding: 20px;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.command { color: #569cd6; } /* Mavi komutlar */
+.string { color: #ce9178; }  /* Turuncu metinler */
+.comment { color: #6a9955; font-style: italic; } /* Yeşil yorumlar */
+.cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: #007acc;
+    margin-left: 5px;
+    animation: blink 1s infinite;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* Geliştirme Kartları */
+.dev-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    width: 90%;
+    max-width: 900px;
+    margin-top: 20px;
+}
+
+.dev-card {
+    background: #252526;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #3e3e42;
+    transition: 0.3s;
+}
+
+.dev-card:hover {
+    border-color: #007acc;
+    transform: translateY(-5px);
+}
+
+.dev-card h3 {
+    margin-top: 0;
+    color: #4fc1ff;
+    font-size: 1.1rem;
+}
+
+.dev-card p {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 0;
+}
+
+/* Status Etiketleri */
+.status-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #3e3e42;
+    color: #ce9178;
+    text-transform: uppercase;
+    font-weight: bold;
+}
