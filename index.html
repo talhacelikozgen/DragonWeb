@@ -9,7 +9,6 @@
         .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
         
-        /* Nasihat Alanı ve Butonlar */
         .slider-container { display: flex; align-items: center; justify-content: center; max-width: 800px; width: 100%; position: relative; }
         .nasihat-box { flex: 1; padding: 30px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
         #nasihat-metni { font-size: 1.6rem; line-height: 1.5; color: #2c3e50; margin-bottom: 20px; }
@@ -17,14 +16,13 @@
         .alt-cizgi { border-bottom: 1px solid #eee; width: 60%; margin: 10px auto; }
         .kaynak { font-size: 0.9rem; color: #999; font-style: italic; }
 
-        .nav-btn { background: none; border: 2px solid #eee; color: #ccc; font-size: 2rem; cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.3s; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
-        .nav-btn:hover { border-color: #c0392b; color: #c0392b; }
-        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .nav-btn { background: none; border: 2px solid #eee; color: #ccc; font-size: 2rem; cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.3s; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; outline: none; }
+        .nav-btn:hover:not(:disabled) { border-color: #c0392b; color: #c0392b; }
+        .nav-btn:disabled { opacity: 0.1; cursor: not-allowed; }
 
-        /* Admin Paneli */
         .admin-area { background: #eee; padding: 20px; border-top: 1px solid #ccc; font-family: sans-serif; text-align: center; }
         #admin-panel { display: none; margin-top: 15px; }
-        .admin-input { width: 90%; max-width: 350px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        .admin-input { width: 90%; max-width: 350px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -32,110 +30,3 @@
     <div class="main-content">
         <div class="tarih" id="gercek-tarih"></div>
         <div id="gun-adi" style="color: #888; margin-bottom: 20px;"></div>
-        
-        <div class="slider-container">
-            <button class="nav-btn" id="prev-btn" onclick="degistir(-1)">❮</button>
-            
-            <div class="nasihat-box">
-                <p id="nasihat-metni">Yükleniyor...</p>
-                <div class="alt-cizgi"></div>
-                <div class="kaynak">Kaynak: Türkiye Takvimi</div>
-            </div>
-
-            <button class="nav-btn" id="next-btn" onclick="degistir(1)">❯</button>
-        </div>
-        <div id="sayfa-bilgi" style="margin-top: 10px; color: #bbb; font-size: 0.8rem;"></div>
-    </div>
-
-    <div class="admin-area">
-        <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#aaa;">Yönetim Paneli</small>
-        <div id="admin-panel">
-            <input type="password" id="token" class="admin-input" placeholder="GitHub Token"> <br>
-            <input type="text" id="yeni-tarih" class="admin-input" placeholder="Tarih (04-16)"> <br>
-            <textarea id="yeni-metin" class="admin-input" rows="3" placeholder="Yeni Nasihat"></textarea> <br>
-            <button onclick="yayinla()" style="padding:10px 20px; background:#2c3e50; color:white; border:none; border-radius:5px;">Yayınla</button>
-            <p id="durum"></p>
-        </div>
-    </div>
-
-<script>
-let bugunkuSozler = [];
-let aktifIndex = 0;
-
-async function veriyiYukle() {
-    const simdi = new Date();
-    document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
-
-    try {
-        const response = await fetch('arsiv.json');
-        const veriler = await response.json();
-        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
-        
-        // Veriyi çek (Eskiden string geliyordu, artık liste gelecek şekilde ayarladık)
-        const data = veriler[anahtar];
-        bugunkuSozler = Array.isArray(data) ? data : (data ? [data] : []);
-        
-        goster();
-    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv yüklenemedi."; }
-}
-
-function goster() {
-    if (bugunkuSozler.length === 0) {
-        document.getElementById('nasihat-metni').innerText = "Bugün için bir kayıt bulunamadı.";
-        document.querySelector('.slider-container').style.display = 'none';
-        return;
-    }
-    
-    document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
-    document.getElementById('sayfa-bilgi').innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
-    
-    document.getElementById('prev-btn').disabled = aktifIndex === 0;
-    document.getElementById('next-btn').disabled = aktifIndex === bugunkuSozler.length - 1;
-}
-
-function degistir(yon) {
-    aktifIndex += yon;
-    goster();
-}
-
-async function yayinla() {
-    const token = document.getElementById('token').value;
-    const tarih = document.getElementById('yeni-tarih').value;
-    const metin = document.getElementById('yeni-metin').value;
-    const durum = document.getElementById('durum');
-    const user = "talhacelikozgen"; 
-    const repo = "DragonWeb";
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/arsiv.json`;
-
-    try {
-        durum.innerText = "Yükleniyor...";
-        const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
-        const fileData = await res.json();
-        let content = JSON.parse(atob(fileData.content));
-
-        // EĞER O GÜN VARSA ÜZERİNE EKLE, YOKSA YENİ LİSTE OLUŞTUR
-        if (!Array.isArray(content[tarih])) {
-            content[tarih] = content[tarih] ? [content[tarih], metin] : [metin];
-        } else {
-            content[tarih].push(metin);
-        }
-        
-        const update = await fetch(url, {
-            method: "PUT",
-            headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: `${tarih} yeni nasihat eklendi`,
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 4)))),
-                sha: fileData.sha
-            })
-        });
-
-        if(update.ok) { durum.innerText = "Başarıyla yayınlandı! Sayfayı yenileyin."; }
-    } catch (e) { durum.innerText = "Hata oluştu!"; }
-}
-
-veriyiYukle();
-</script>
-</body>
-</html>
