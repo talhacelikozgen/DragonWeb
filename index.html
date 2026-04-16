@@ -1,48 +1,41 @@
-<div class="nasihat-karti" style="text-align: center; border-top: 3px solid #2c3e50;">
-    <h3 id="takvim-tarih" style="color: #c0392b; font-size: 0.9rem;"></h3>
-    <p id="gunun-nasihati" style="font-style: italic; font-size: 1.2rem; min-height: 60px;">Yükleniyor...</p>
-    <div id="gunun-olayi" style="font-size: 0.8rem; color: #666; border-top: 1px dotted #ccc; padding-top: 10px;"></div>
+<div class="nasihat-karti" style="text-align: center; padding: 40px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div id="gercek-tarih" style="font-size: 1.2rem; color: #c0392b; font-weight: bold; margin-bottom: 10px;"></div>
+    <div id="gun-adi" style="font-size: 1rem; color: #777; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;"></div>
+    
+    <hr style="width: 50px; border: 1px solid #eee; margin: 20px auto;">
+
+    <p id="nasihat-metni" style="font-size: 1.4rem; font-family: 'Times New Roman', serif; line-height: 1.6; color: #2c3e50;">Yükleniyor...</p>
 </div>
 
 <script>
-const takvimVerisi = {
-    "04-16": {
-        nasihat: "Misvak kullanmam bana o kadar emredildi ki, üzerime farz kılınacağından korktum. Hadîs-i şerîf",
-        olay: "Anayasa değişikliği referandumla kabul edildi (2017)"
-    },
-    "04-17": {
-        nasihat: "YENİ HİLÂL: Zil-ka'de ayının hilâli bu gece yarısından sonra ilk defa görülecektir.",
-        olay: "Turgut Özal (1993) ve Prof. Ali Fuat Başgil'in (1967) vefâtları"
-    },
-    "04-18": {
-        nasihat: "Ne mutlu beni görüp, sonra bana îmân edene! Ne mutlu beni görmeyip de, bana îmân edene! Hadîs-i şerîf",
-        olay: "Genel ve Mahallî seçimler (1999) - Türk-Yunan Harbi'nin başlaması (1897)"
-    },
-    "04-19": {
-        nasihat: "Allah adamları ile sohbet aklı artırır. Alâeddîn-i Attâr 'Rahmetullahi aleyh'",
-        olay: "Rusların Trabzon'u işgâli (1916)"
-    }
-    // Buraya aynı formatta 365 günü ekleyebilirsin.
-};
-
-function takvimiGuncelle() {
+async function sistemiBaslat() {
+    // 1. GERÇEK TARİHİ HESAPLA VE YAZ
     const simdi = new Date();
-    const ay = String(simdi.getMonth() + 1).padStart(2, '0');
-    const gun = String(simdi.getDate()).padStart(2, '0');
-    const anahtar = `${ay}-${gun}`;
+    const gun = simdi.getDate();
+    const ayIsmi = simdi.toLocaleDateString('tr-TR', { month: 'long' });
+    const yil = simdi.getFullYear();
+    const gunIsmi = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
 
-    const bugun = takvimVerisi[anahtar];
+    document.getElementById('gercek-tarih').innerText = `${gun} ${ayIsmi} ${yil}`;
+    document.getElementById('gun-adi').innerText = gunIsmi;
 
-    if (bugun) {
-        document.getElementById('takvim-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' });
-        document.getElementById('gunun-nasihati').innerText = bugun.nasihat;
-        document.getElementById('gunun-olayi').innerText = bugun.olay;
-    } else {
-        document.getElementById('gunun-nasihati').innerText = "Hikmetli sözler arşivi güncelleniyor...";
+    // 2. JSON'DAN İLGİLİ NASİHATİ ÇEK
+    try {
+        const response = await fetch('arsiv.json');
+        const veriler = await response.json();
+        
+        // JSON anahtarı için "04-16" formatını oluştur
+        const ayNo = String(simdi.getMonth() + 1).padStart(2, '0');
+        const gunNo = String(simdi.getDate()).padStart(2, '0');
+        const anahtar = `${ayNo}-${gunNo}`;
+        
+        // Veriyi ekrana bas
+        document.getElementById('nasihat-metni').innerText = veriler[anahtar] || "Bugün için bir hikmetli söz eklenmemiş.";
+        
+    } catch (hata) {
+        document.getElementById('nasihat-metni').innerText = "Veri dosyası yüklenemedi.";
     }
 }
 
-// Sayfa açıldığında çalıştır
-takvimiGuncelle();
+sistemiBaslat();
 </script>
-
