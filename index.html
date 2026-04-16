@@ -10,7 +10,6 @@
             --ana-renk: #2c3e50;
             --vurgu-renk: #c0392b;
             --arka-plan: #f4f7f6;
-            --menu-pasif: rgba(0, 0, 0, 0.3);
         }
 
         body { 
@@ -24,40 +23,12 @@
             overflow-x: hidden; 
         }
 
-        /* --- YENİ: ÜST GEÇİŞ MENÜSÜ (Görseldeki Stil) --- */
-        .top-nav {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            padding: 20px 0;
-            background: transparent;
-            z-index: 1000;
-        }
-
-        .nav-link {
-            font-family: sans-serif;
-            font-size: 0.9rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            color: var(--menu-pasif);
-            transition: 0.3s;
-            padding: 5px 10px;
-        }
-
-        .nav-link.active {
-            color: var(--ana-renk);
-            border-bottom: 2px solid var(--vurgu-renk);
-        }
-
         /* --- ÜST KISIM --- */
         header { 
             display: flex; 
             justify-content: flex-end; 
             padding: 15px 30px; 
-            position: absolute;
-            right: 0;
+            position: relative;
         }
 
         .menu-toggle { 
@@ -88,11 +59,16 @@
         .menu-item:hover { background: var(--vurgu-renk); padding-left: 20px; }
         .close-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 2.5rem; border: none; background: none; cursor: pointer; }
 
-        /* --- SAYFA YAPILARI --- */
-        .page-content { display: none; flex-direction: column; align-items: center; width: 100%; flex: 1; padding-top: 20px; }
-        .page-content.active { display: flex; }
+        /* --- ANA İÇERİK --- */
+        .main-content { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding-top: 40px; 
+            text-align: center; 
+        }
 
-        /* --- DİNİMİZ İSLAM ÖZEL --- */
         .tarih-container { margin-bottom: 25px; }
         .tarih { color: var(--vurgu-renk); font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
         #gun-adi { color: #888; text-transform: uppercase; letter-spacing: 3px; font-size: 0.85rem; }
@@ -108,7 +84,7 @@
             border: 1px solid rgba(0,0,0,0.03);
         }
         .nasihat-box { flex: 1; padding: 0 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
-        #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: var(--ana-renk); margin-bottom: 15px; text-align: center; }
+        #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: var(--ana-renk); margin-bottom: 15px; }
         .alt-cizgi { border-bottom: 1px solid #eee; width: 30%; margin: 10px auto; }
         .kaynak { font-size: 0.85rem; color: #bbb; font-style: italic; }
 
@@ -116,27 +92,25 @@
         .nav-btn:hover:not(:disabled) { border-color: var(--vurgu-renk); color: var(--vurgu-renk); background: #fff5f5; }
         .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
-        .books-area { margin-top: 45px; width: 100%; max-width: 450px; margin-bottom: 40px; text-align: center; }
+        .books-area { margin-top: 45px; width: 100%; max-width: 450px; margin-bottom: 40px; }
         #book-banner { width: 85%; height: auto; cursor: pointer; transition: 0.4s; filter: grayscale(10%); }
         #book-banner:hover { filter: grayscale(0%); transform: translateY(-5px); }
 
-        .radio-area { width: 95%; max-width: 800px; margin: 20px auto 40px; transition: 0.3s; text-align: center; }
-        #radio-banner { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; }
-
-        /* --- DRAGON HELMET ÖZEL (DEVELOPER MODE) --- */
-        .terminal-box {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 30px;
-            border-radius: 15px;
-            width: 85%;
-            max-width: 800px;
-            font-family: 'Courier New', Courier, monospace;
-            text-align: left;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            border: 1px solid #333;
-            margin-top: 40px;
+        /* --- İSLAM VE TOPLUM BANNER (YENİ) --- */
+        .radio-area { 
+            width: 95%; 
+            max-width: 800px; 
+            margin: 20px auto 40px; 
+            transition: 0.3s;
         }
+        #radio-banner { 
+            width: 100%; 
+            height: auto; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .radio-area:hover { transform: scale(1.02); }
 
         /* --- ALT KISIM --- */
         footer { 
@@ -155,16 +129,27 @@
 </head>
 <body>
 
-    <nav class="top-nav">
-        <div class="nav-link active" onclick="switchPage('islam', this)">Dinimiz İslam</div>
-        <div class="nav-link" onclick="switchPage('dragon', this)">Dragon Helmet</div>
-    </nav>
-
     <header>
         <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     </header>
 
-    <div id="page-islam" class="page-content active">
+    <div class="side-menu" id="side-menu">
+        <button class="close-btn" onclick="toggleMenu()">×</button>
+        <a href="http://huseyinhilmiisik.com/" target="_blank" class="menu-item">Hüseyin Hilmi Işık</a>
+        <a href="https://hakikatkitabevi.com/" target="_blank" class="menu-item">Hakikat Kitabevi</a>
+        <a href="https://osman-unlu.com/" target="_blank" class="menu-item">Osman Ünlü</a>
+        <a href="https://namazvakti.com/" target="_blank" class="menu-item">Namaz Vakti</a>
+        <a href="https://dinimizislam.com/" target="_blank" class="menu-item">Dinimiz İslam</a>
+        <a href="https://turkiyegazetesi.com.tr/bizim-sayfa" target="_blank" class="menu-item">Bizim Sayfa</a>
+        <a href="https://youtube.com/@muziksizilahilertv" target="_blank" class="menu-item">Müziksiz İlahiler</a>
+        <a href="https://huzurpinari.com/" target="_blank" class="menu-item">Huzur Pınarı</a>
+        <a href="https://myreligionislam.com/" target="_blank" class="menu-item">My Religion Islam</a>
+        <a href="https://notrereligionislam.com/" target="_blank" class="menu-item">Notre Religion Islam</a>
+        <a href="https://serenityfountain.org/" target="_blank" class="menu-item">Serenity Fountain</a>
+        <a href="https://youtube.com/@gonulsultanlaritv" target="_blank" class="menu-item">Gönül Sultanları</a>
+    </div>
+
+    <div class="main-content">
         <div class="tarih-container">
             <div class="tarih" id="gercek-tarih"></div>
             <div id="gun-adi"></div>
@@ -194,33 +179,6 @@
         </div>
     </div>
 
-    <div id="page-dragon" class="page-content">
-        <div class="terminal-box">
-            <p style="color: #569cd6;">> Initializing Dragon Helmet Project...</p>
-            <p style="color: #ce9178;">> Status: Development Phase</p>
-            <p style="color: #6a9955;">// Burası yeni fikirlerin test edileceği alandır.</p>
-            <p>> Sistem komutları bekliyor...</p>
-            <p style="margin-top: 20px;">_</p>
-        </div>
-        <div style="margin-top: 30px; color: #888;">Dragon Helmet Modülü v0.1</div>
-    </div>
-
-    <div class="side-menu" id="side-menu">
-        <button class="close-btn" onclick="toggleMenu()">×</button>
-        <a href="http://huseyinhilmiisik.com/" target="_blank" class="menu-item">Hüseyin Hilmi Işık</a>
-        <a href="https://hakikatkitabevi.com/" target="_blank" class="menu-item">Hakikat Kitabevi</a>
-        <a href="https://osman-unlu.com/" target="_blank" class="menu-item">Osman Ünlü</a>
-        <a href="https://namazvakti.com/" target="_blank" class="menu-item">Namaz Vakti</a>
-        <a href="https://dinimizislam.com/" target="_blank" class="menu-item">Dinimiz İslam</a>
-        <a href="https://turkiyegazetesi.com.tr/bizim-sayfa" target="_blank" class="menu-item">Bizim Sayfa</a>
-        <a href="https://youtube.com/@muziksizilahilertv" target="_blank" class="menu-item">Müziksiz İlahiler</a>
-        <a href="https://huzurpinari.com/" target="_blank" class="menu-item">Huzur Pınarı</a>
-        <a href="https://myreligionislam.com/" target="_blank" class="menu-item">My Religion Islam</a>
-        <a href="https://notrereligionislam.com/" target="_blank" class="menu-item">Notre Religion Islam</a>
-        <a href="https://serenityfountain.org/" target="_blank" class="menu-item">Serenity Fountain</a>
-        <a href="https://youtube.com/@gonulsultanlaritv" target="_blank" class="menu-item">Gönül Sultanları</a>
-    </div>
-
     <footer>
         <a href="https://dinimizislam.com/" target="_blank">
             <img src="di-logo-1.png" alt="Dinimiz İslam" id="di-logo">
@@ -242,18 +200,6 @@
 <script>
 let bugunkuSozler = [];
 let aktifIndex = 0;
-
-// SAYFA GEÇİŞ FONKSİYONU
-function switchPage(pageId, element) {
-    document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
-    
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    element.classList.add('active');
-    
-    // Yan menüyü kapat (opsiyonel)
-    document.getElementById('side-menu').classList.remove('active');
-}
 
 function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
 
