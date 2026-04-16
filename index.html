@@ -1,41 +1,102 @@
-<div class="nasihat-karti" style="text-align: center; padding: 40px; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-    <div id="gercek-tarih" style="font-size: 1.2rem; color: #c0392b; font-weight: bold; margin-bottom: 10px;"></div>
-    <div id="gun-adi" style="font-size: 1rem; color: #777; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;"></div>
-    
-    <hr style="width: 50px; border: 1px solid #eee; margin: 20px auto;">
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Helmet - Günlük Hikmet</title>
+    <style>
+        body { font-family: 'Georgia', serif; background: #fdfdfd; color: #333; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+        .nasihat-box { max-width: 600px; text-align: center; padding: 30px; border-bottom: 2px solid #eee; }
+        #nasihat-metni { font-size: 1.6rem; line-height: 1.5; color: #2c3e50; }
+        
+        /* Admin Bölümü Stilleri */
+        .admin-area { background: #eee; padding: 20px; border-top: 1px solid #ccc; font-family: sans-serif; }
+        .admin-input { width: 90%; max-width: 300px; padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        #admin-panel { display: none; margin-top: 15px; } /* Başlangıçta gizli */
+        .admin-btn { background: #2c3e50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-    <p id="nasihat-metni" style="font-size: 1.4rem; font-family: 'Times New Roman', serif; line-height: 1.6; color: #2c3e50;">Yükleniyor...</p>
-</div>
+    <div class="main-content">
+        <div class="tarih" id="gercek-tarih"></div>
+        <div id="gun-adi" style="color: #888; margin-bottom: 20px;"></div>
+        
+        <div class="nasihat-box">
+            <p id="nasihat-metni">Yükleniyor...</p>
+        </div>
+    </div>
+
+    <div class="admin-area">
+        <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#aaa;">Yönetim Paneli</small>
+        
+        <div id="admin-panel">
+            <input type="password" id="token" class="admin-input" placeholder="GitHub Token"> <br>
+            <input type="text" id="yeni-tarih" class="admin-input" placeholder="Tarih (Örn: 04-17)"> <br>
+            <textarea id="yeni-metin" class="admin-input" rows="3" placeholder="Yeni Nasihat"></textarea> <br>
+            <button class="admin-btn" onclick="yayinla()">Yayınla ve Güncelle</button>
+            <p id="durum" style="font-size: 0.8rem;"></p>
+        </div>
+    </div>
 
 <script>
-async function sistemiBaslat() {
-    // 1. GERÇEK TARİHİ HESAPLA VE YAZ
+// --- 1. VERİ ÇEKME FONKSİYONU ---
+async function veriyiYukle() {
     const simdi = new Date();
-    const gun = simdi.getDate();
-    const ayIsmi = simdi.toLocaleDateString('tr-TR', { month: 'long' });
-    const yil = simdi.getFullYear();
-    const gunIsmi = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
+    document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
 
-    document.getElementById('gercek-tarih').innerText = `${gun} ${ayIsmi} ${yil}`;
-    document.getElementById('gun-adi').innerText = gunIsmi;
-
-    // 2. JSON'DAN İLGİLİ NASİHATİ ÇEK
     try {
         const response = await fetch('arsiv.json');
         const veriler = await response.json();
+        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
+        document.getElementById('nasihat-metni').innerText = veriler[anahtar] || "Bugün için bir kayıt bulunamadı.";
+    } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv yüklenemedi."; }
+}
+
+// --- 2. YAYINLAMA FONKSİYONU (ADMİN) ---
+async function yayinla() {
+    const token = document.getElementById('token').value;
+    const tarih = document.getElementById('yeni-tarih').value;
+    const metin = document.getElementById('yeni-metin').value;
+    const durum = document.getElementById('durum');
+
+    // BURAYI KENDİ BİLGİLERİNLE DOLDUR
+    const user = "KULLANICI_ADIN"; 
+    const repo = "REPO_ADIN";
+    const url = `https://api.github.com/repos/${user}/${repo}/contents/arsiv.json`;
+
+    try {
+        durum.innerText = "Güncelleniyor...";
+        const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+        const fileData = await res.json();
         
-        // JSON anahtarı için "04-16" formatını oluştur
-        const ayNo = String(simdi.getMonth() + 1).padStart(2, '0');
-        const gunNo = String(simdi.getDate()).padStart(2, '0');
-        const anahtar = `${ayNo}-${gunNo}`;
+        let content = JSON.parse(atob(fileData.content));
+        content[tarih] = metin; // Yeni nasihati ekle veya olanı güncelle
         
-        // Veriyi ekrana bas
-        document.getElementById('nasihat-metni').innerText = veriler[anahtar] || "Bugün için bir hikmetli söz eklenmemiş.";
-        
-    } catch (hata) {
-        document.getElementById('nasihat-metni').innerText = "Veri dosyası yüklenemedi.";
+        const update = await fetch(url, {
+            method: "PUT",
+            headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: `${tarih} güncellendi`,
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 4)))),
+                sha: fileData.sha
+            })
+        });
+
+        if(update.ok) { 
+            durum.style.color = "green";
+            durum.innerText = "Başarıyla yayınlandı! Sayfayı yenileyin."; 
+        } else { throw new Error(); }
+    } catch (e) { 
+        durum.style.color = "red";
+        durum.innerText = "Hata! Token veya bilgiler yanlış."; 
     }
 }
 
-sistemiBaslat();
+veriyiYukle();
 </script>
+</body>
+</html>
