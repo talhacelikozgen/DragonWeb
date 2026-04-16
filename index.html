@@ -20,10 +20,10 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            overflow-x: hidden; /* Sağdaki çizgiyi ve kaymayı önler */
+            overflow-x: hidden; 
         }
 
-        /* --- ÜST KISIM (Kitaplar ve Menü) --- */
+        /* --- ÜST KISIM --- */
         header { 
             display: flex; 
             justify-content: space-between; 
@@ -51,11 +51,11 @@
             z-index: 100;
         }
 
-        /* --- YAN MENÜ (Gri Kutular) --- */
+        /* --- YAN MENÜ --- */
         .side-menu { 
             position: fixed; 
             top: 0; 
-            right: -350px; /* Çizgi kalmaması için iyice dışarı itildi */
+            right: -350px; 
             width: 280px; 
             height: 100%; 
             background: #444; 
@@ -63,7 +63,6 @@
             z-index: 999; 
             padding: 70px 20px 20px; 
             overflow-y: auto;
-            box-shadow: none;
         }
 
         .side-menu.active { 
@@ -116,23 +115,31 @@
         #nasihat-metni { font-size: 1.5rem; line-height: 1.6; color: var(--ana-renk); margin-bottom: 15px; }
 
         .alt-cizgi { border-bottom: 1px solid #eee; width: 60%; margin: 10px auto; }
-        .kaynak { font-size: 0.9rem; color: #999; font-style: italic; }
+        .kaynak { font-size: 0.8rem; color: #999; font-style: italic; }
 
         .nav-btn { background: none; border: 2px solid #eee; color: #ccc; font-size: 1.8rem; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; transition: 0.3s; outline: none; }
         .nav-btn:hover:not(:disabled) { border-color: var(--vurgu-renk); color: var(--vurgu-renk); }
 
-        /* --- ALT LOGO (DÜZELTİLDİ) --- */
+        /* --- ALT KISIM (FOOTER) --- */
         footer { 
             display: flex; 
-            justify-content: center; 
-            padding: 10px; 
+            flex-direction: column; /* Yazıyı logonun altına almak için eklendi */
+            align-items: center; 
+            padding: 15px; 
             border-top: 1px solid #eee; 
             background: white; 
         }
         #di-logo { 
-            max-height: 45px; /* Boyut küçültüldü, tam görünür yapıldı */
+            max-height: 45px; 
             height: auto; 
             cursor: pointer; 
+            margin-bottom: 8px;
+        }
+        .footer-notu { 
+            font-size: 0.75rem; 
+            color: #bbb; 
+            font-family: sans-serif; 
+            font-style: italic;
         }
 
         /* --- ADMİN --- */
@@ -184,6 +191,7 @@
         <a href="https://dinimizislam.com/" target="_blank">
             <img src="di-logo-1.png" alt="Dinimiz İslam" id="di-logo">
         </a>
+        <div class="footer-notu">Bu site Dragon Helmet geliştirilene kadar bu şekilde hizmet verecektir.</div>
     </footer>
 
     <div class="admin-area">
