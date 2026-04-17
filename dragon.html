@@ -1,106 +1,35 @@
 <style>
-    .dragon-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        text-align: center;
-        font-family: 'Segoe UI', Roboto, sans-serif;
-    }
-
-    .stack-wrapper {
-        position: relative;
-        height: 480px; /* Biraz yükselttik içerik sığsın diye */
-        width: 100%;
-        perspective: 1200px;
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
+    .dragon-container { max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; font-family: 'Segoe UI', sans-serif; }
+    .stack-wrapper { position: relative; height: 480px; width: 100%; perspective: 1200px; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
+    
     .proje-kart {
-        position: absolute;
-        width: 90%;
-        max-width: 380px;
-        background: white;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border-left: 5px solid #c0392b;
-        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        user-select: none;
-        opacity: 0;
-        pointer-events: none;
-        transform: translateZ(-100px) scale(0.8);
+        position: absolute; width: 90%; max-width: 380px; background: white; border-radius: 20px; padding: 20px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 5px solid #c0392b;
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; pointer-events: none;
     }
 
-    /* AKTİF KART (Tam Merkez) */
-    .proje-kart.active {
-        opacity: 1;
-        z-index: 10;
-        pointer-events: all;
-        transform: translateX(0) translateZ(0) scale(1);
-    }
+    .proje-kart.active { opacity: 1; z-index: 10; pointer-events: all; transform: translateX(0) translateZ(0) scale(1); }
+    .proje-kart.prev { opacity: 0.4; z-index: 5; transform: translateX(-105%) translateZ(-200px) scale(0.8) rotate(-5deg); filter: blur(2px); }
+    .proje-kart.next { opacity: 0.4; z-index: 5; transform: translateX(105%) translateZ(-200px) scale(0.8) rotate(5deg); filter: blur(2px); }
+    .proje-kart.hidden { opacity: 0; z-index: 0; transform: translateX(0) translateZ(-400px) scale(0.5); }
 
-    /* SOLDAKİ KART (Gelecek) */
-    .proje-kart.prev {
-        opacity: 0.4;
-        z-index: 5;
-        transform: translateX(-105%) translateZ(-200px) scale(0.8) rotate(-5deg);
-        filter: blur(2px);
-    }
-
-    /* SAĞDAKİ KART (Geçmiş) */
-    .proje-kart.next {
-        opacity: 0.4;
-        z-index: 5;
-        transform: translateX(105%) translateZ(-200px) scale(0.8) rotate(5deg);
-        filter: blur(2px);
-    }
-
-    /* DİĞERLERİ */
-    .proje-kart.hidden {
-        opacity: 0;
-        z-index: 0;
-        transform: translateX(0) translateZ(-400px) scale(0.5);
-    }
-
-    .k-tarih { color: #bdc3c7; font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
+    .k-tarih { color: #bdc3c7; font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; }
     .k-baslik { color: #2c3e50; font-size: 1.2rem; margin-bottom: 12px; font-weight: bold; }
-    .k-metin { 
-        color: #5d6d7e; font-size: 0.9rem; line-height: 1.5; 
-        max-height: 120px; overflow-y: auto; padding-right: 5px;
-    }
-    .k-img { 
-        width: 100%; height: 150px; object-fit: cover; 
-        border-radius: 12px; margin-top: 15px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
+    .k-metin { color: #5d6d7e; font-size: 0.9rem; line-height: 1.5; max-height: 120px; overflow-y: auto; }
+    .k-img { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; margin-top: 15px; }
 
-    .nav-controls {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        margin-top: 25px;
-    }
-    .stack-btn {
-        background: #fff; border: 1px solid #eee; width: 55px; height: 55px;
-        border-radius: 50%; cursor: pointer; transition: 0.3s;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        display: flex; align-items: center; justify-content: center;
-        color: #333; font-size: 1.2rem;
-    }
-    .stack-btn:hover:not(:disabled) { border-color: #c0392b; color: #c0392b; transform: translateY(-2px); }
-    .stack-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .nav-controls { display: flex; justify-content: center; gap: 30px; margin-top: 25px; }
+    .stack-btn { background: #fff; border: 1px solid #eee; width: 55px; height: 55px; border-radius: 50%; cursor: pointer; color: #333; font-size: 1.2rem; }
+    .stack-btn:disabled { opacity: 0.2; cursor: not-allowed; }
 </style>
 
 <div class="dragon-container">
     <img src="images/dragon-logo.png" style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 10px; display: block; border: 2px solid #eee;">
-    <h1 style="font-size: 1.4rem; color: #2c3e50; margin: 0;">Dragon Helmet</h1>
+    <h1 style="font-size: 1.4rem; color: #2c3e50;">Dragon Helmet</h1>
     <div style="width: 30px; height: 3px; background: #c0392b; margin: 10px auto 25px;"></div>
 
     <div class="stack-wrapper" id="stack-container">
-        <p style="color:#bbb;">Haberler hazırlanıyor...</p>
+        <p id="durum-mesaji" style="color:#bbb;">Haberler aranıyor...</p>
     </div>
 
     <div class="nav-controls">
@@ -114,22 +43,28 @@
     let aktifIndex = 0;
 
     async function projeleriYukle() {
-        const container = document.getElementById('stack-container');
+        const durum = document.getElementById('durum-mesaji');
         try {
+            // Dosya yolunu kesinleştirmek için başına / koymuyoruz, klasör adını kontrol et
             const response = await fetch('data/projeler.json?t=' + Date.now());
-            if (!response.ok) throw new Error('JSON bulunamadı');
             
+            if (!response.ok) {
+                throw new Error(`Dosya bulunamadı! (Hata kodu: ${response.status})`);
+            }
+
             const data = await response.json();
-            if (!data || data.length === 0) {
-                container.innerHTML = "<p style='color:#ccc;'>Henüz bir içerik girilmemiş.</p>";
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                durum.innerText = "JSON dosyası boş veya liste formatında değil.";
                 return;
             }
 
-            // JSON'daki sırayı koru (eğer JSON eskiyse reverse() ekleyebilirsin)
             kartVerileri = data; 
             kartlariOlustur();
         } catch (e) {
-            container.innerHTML = "<p style='color:#e74c3c;'>Bağlantı hatası: Veriler yüklenemedi.</p>";
+            console.error(e);
+            durum.style.color = "#e74c3c";
+            durum.innerHTML = `Hata: ${e.message}<br><small>GitHub'da data/projeler.json dosyasının olduğundan emin olun.</small>`;
         }
     }
 
@@ -141,17 +76,16 @@
             let gorselHtml = '';
             if (p.gorsel) {
                 const imgPath = p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel;
-                gorselHtml = `<img src="${imgPath}" class="k-img" onerror="this.parentElement.removeChild(this)">`;
+                gorselHtml = `<img src="${imgPath}" class="k-img" onerror="this.style.display='none'">`;
             }
 
             const div = document.createElement('div');
             div.className = 'proje-kart';
             div.id = `kart-${index}`;
-            div.setAttribute('data-id', p.id); // Admin modu için kimlik
             div.innerHTML = `
-                <div class="k-tarih">${p.tarih}</div>
-                <div class="k-baslik">${p.baslik}</div>
-                <div class="k-metin">${p.metin}</div>
+                <div class="k-tarih">${p.tarih || ''}</div>
+                <div class="k-baslik">${p.baslik || 'Başlıksız'}</div>
+                <div class="k-metin">${p.metin || ''}</div>
                 ${gorselHtml}
             `;
             container.appendChild(div);
@@ -161,25 +95,15 @@
 
     function guncelle() {
         if (kartVerileri.length === 0) return;
-
         kartVerileri.forEach((_, i) => {
             const kart = document.getElementById(`kart-${i}`);
             if (!kart) return;
-
             kart.classList.remove('active', 'prev', 'next', 'hidden');
-
-            if (i === aktifIndex) {
-                kart.classList.add('active');
-            } else if (i === aktifIndex - 1) {
-                kart.classList.add('prev');
-            } else if (i === aktifIndex + 1) {
-                kart.classList.add('next');
-            } else {
-                kart.classList.add('hidden');
-            }
+            if (i === aktifIndex) kart.classList.add('active');
+            else if (i === aktifIndex - 1) kart.classList.add('prev');
+            else if (i === aktifIndex + 1) kart.classList.add('next');
+            else kart.classList.add('hidden');
         });
-
-        // Buton durumları
         document.getElementById('prevBtn').disabled = (aktifIndex === 0);
         document.getElementById('nextBtn').disabled = (aktifIndex === kartVerileri.length - 1);
     }
@@ -192,5 +116,5 @@
         }
     }
 
-    window.addEventListener('load', projeleriYukle);
+    window.onload = projeleriYukle;
 </script>
