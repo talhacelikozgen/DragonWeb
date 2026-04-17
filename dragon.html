@@ -9,13 +9,7 @@
         text-align: left; position: relative;
     }
 
-    /* Düzenlenebilir Alan Efekti */
-    [contenteditable="true"] { 
-        border: 1px dashed #c0392b; 
-        padding: 5px; 
-        border-radius: 4px; 
-        background-color: #fffcfc;
-    }
+    [contenteditable="true"] { border: 1px dashed #c0392b; padding: 5px; border-radius: 4px; background-color: #fffcfc; }
 
     .k-tarih { color: #bbb; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
     .k-baslik { color: #2c3e50; font-size: 1.2rem; margin: 10px 0; font-weight: bold; }
@@ -25,18 +19,20 @@
     .nav-bar { display: flex; justify-content: space-between; align-items: center; }
     .nav-btn { background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; }
     .nav-btn:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
-    .sayfalar { font-size: 0.85rem; color: #999; font-weight: bold; }
 
-    /* Admin Paneli Stilleri */
-    .admin-giris-alani { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
-    #admin-form { display: none; margin-top: 10px; }
-    .admin-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 80%; max-width: 250px; }
-    .edit-badge { 
-        display: none; position: absolute; top: -10px; right: -10px; 
-        background: #e67e22; color: white; padding: 4px 8px; 
-        border-radius: 4px; font-size: 0.7rem; font-weight: bold;
-    }
+    /* Admin Paneli & Yeni Butonlar */
+    .admin-controls { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .save-btn { background: #27ae60 !important; font-weight: bold; }
+    .delete-btn { background: #c0392b !important; margin-top: 10px; font-size: 0.8rem; }
+    .new-btn { background: #2980b9 !important; margin-bottom: 20px; width: 100%; }
+    
+    #admin-form { display: none; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+    .admin-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+    
+    .loading-overlay { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:999; justify-content:center; align-items:center; }
 </style>
+
+<div id="loader" class="loading-overlay">İşlem yapılıyor...</div>
 
 <div class="dragon-container">
     <div class="logo-area">
@@ -45,21 +41,27 @@
         <div style="width:30px; height:2px; background:#c0392b; margin:10px auto;"></div>
     </div>
 
+    <div id="admin-extra" style="display:none;">
+        <button class="nav-btn new-btn" onclick="yeniProjeEkle()">+ Yeni Proje Ekle</button>
+    </div>
+
     <div class="kart-cerceve" id="proje-yukleme-alani">
-        <p style="color:#ccc;">Projeler aranıyor...</p>
+        <p style="color:#ccc;">Yükleniyor...</p>
     </div>
 
     <div class="nav-bar">
         <button class="nav-btn" id="btnGeri" onclick="projeDegistir(-1)">❮</button>
-        <span class="sayfalar" id="sayfaBilgi">0 / 0</span>
+        <div class="admin-controls" id="admin-actions" style="display:none;">
+            <button class="nav-btn save-btn" onclick="githubKaydet()">YAYINLA / KAYDET</button>
+        </div>
         <button class="nav-btn" id="btnIleri" onclick="projeDegistir(1)">❯</button>
     </div>
 
-    <div class="admin-giris-alani">
-        <small id="admin-ac-btn" style="color: #eee; cursor: pointer;" onclick="toggleAdminForm()">Yönetim</small>
+    <div class="admin-giris-alani" style="margin-top:30px;">
+        <small id="admin-toggle" style="color: #eee; cursor: pointer;" onclick="document.getElementById('admin-form').style.display='block'">Yönetim</small>
         <div id="admin-form">
             <input type="password" id="adminToken" class="admin-input" placeholder="GitHub Token Giriniz">
-            <button class="nav-btn" style="padding: 8px 15px; background: #2c3e50;" onclick="adminModunuAc()">Giriş</button>
+            <button class="nav-btn" style="width:100%" onclick="adminModunuAc()">Giriş Yap</button>
         </div>
     </div>
 </div>
@@ -68,76 +70,126 @@
     let dProjeler = [];
     let dAktifIdx = 0;
     let isAdmin = false;
+    let ghToken = "";
 
     async function dVeriYukle() {
-        const alan = document.getElementById('proje-yukleme-alani');
         try {
             const res = await fetch('data/projeler.json?t=' + Date.now());
-            if (!res.ok) throw new Error("JSON dosyasına ulaşılamadı.");
             dProjeler = await res.json();
-            if (dProjeler.length === 0) {
-                alan.innerHTML = "<p>Henüz proje eklenmemiş.</p>";
-                return;
-            }
-            // Yeni haber en üstte
-            dProjeler.reverse();
+            dProjeler.reverse(); // En yeni en üstte
             dGoster();
-        } catch (err) {
-            alan.innerHTML = `<p style="color:red; font-size:0.8rem;">Hata: ${err.message}</p>`;
-        }
+        } catch (err) { console.error("Yükleme hatası"); }
     }
 
     function dGoster() {
         const alan = document.getElementById('proje-yukleme-alani');
         const p = dProjeler[dAktifIdx];
-        
-        let imgTag = "";
-        if (p.gorsel) {
-            const yol = p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel;
-            imgTag = `<img src="${yol}" class="k-img" onerror="this.style.display='none'">`;
-        }
+        if(!p) return;
 
-        // Admin modundaysak alanları düzenlenebilir yapıyoruz
-        const editableAttr = isAdmin ? 'contenteditable="true"' : '';
-        const badgeStyle = isAdmin ? 'display: block;' : '';
+        const editable = isAdmin ? 'contenteditable="true"' : '';
+        let imgHtml = p.gorsel ? `<img src="${p.gorsel.startsWith('images/') ? p.gorsel : 'images/'+p.gorsel}" class="k-img">` : '<p style="color:#ccc; font-size:0.8rem;">Görsel yok</p>';
 
         alan.innerHTML = `
             <div class="proje-kart">
-                <div class="edit-badge" style="${badgeStyle}">EDİT MODU</div>
-                <div class="k-tarih" ${editableAttr} id="edit-tarih">${p.tarih}</div>
-                <div class="k-baslik" ${editableAttr} id="edit-baslik">${p.baslik}</div>
-                <div class="k-metin" ${editableAttr} id="edit-metin">${p.metin}</div>
-                ${imgTag}
-                ${isAdmin ? `<div style="margin-top:10px;"><small style="color:#bbb;">Görsel adı:</small> <input type="text" id="edit-gorsel" value="${p.gorsel}" class="admin-input" style="font-size:0.7rem; width:60%;"></div>` : ''}
+                <div class="k-tarih" ${editable} id="ed-tarih">${p.tarih}</div>
+                <div class="k-baslik" ${editable} id="ed-baslik">${p.baslik}</div>
+                <div class="k-metin" ${editable} id="ed-metin">${p.metin}</div>
+                <div id="img-container">${imgHtml}</div>
+                ${isAdmin ? `
+                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem;">
+                        <button class="nav-btn delete-btn" onclick="projeSil()">Bu Projeyi Sil</button>
+                    </div>
+                ` : ''}
             </div>
         `;
-
-        document.getElementById('sayfaBilgi').innerText = `${dAktifIdx + 1} / ${dProjeler.length}`;
         document.getElementById('btnGeri').disabled = (dAktifIdx === 0);
         document.getElementById('btnIleri').disabled = (dAktifIdx === dProjeler.length - 1);
     }
 
-    function projeDegistir(yon) {
-        dAktifIdx += yon;
+    function projeDegistir(yon) { dAktifIdx += yon; dGoster(); }
+
+    function adminModunuAc() {
+        ghToken = document.getElementById('adminToken').value;
+        if(ghToken.length < 10) return alert("Geçersiz Token");
+        isAdmin = true;
+        document.getElementById('admin-form').style.display = 'none';
+        document.getElementById('admin-actions').style.display = 'block';
+        document.getElementById('admin-extra').style.display = 'block';
         dGoster();
     }
 
-    // ADMİN MODU FONKSİYONLARI
-    function toggleAdminForm() {
-        const form = document.getElementById('admin-form');
-        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    function yeniProjeEkle() {
+        const yeni = { id: Date.now(), tarih: "Yeni Tarih", baslik: "Yeni Başlık", metin: "Açıklama yazın...", gorsel: "" };
+        dProjeler.unshift(yeni); // Başa ekle
+        dAktifIdx = 0;
+        dGoster();
     }
 
-    function adminModunuAc() {
-        const token = document.getElementById('adminToken').value;
-        if (token.length > 5) { // Basit bir kontrol, asıl kontrol 4. adımda kayıt yaparken olacak
-            isAdmin = true;
-            alert("Edit modu aktif! Kartlardaki yazıların üzerine tıklayarak değiştirebilirsiniz.");
-            document.getElementById('admin-form').style.display = 'none';
-            dGoster();
-        } else {
-            alert("Lütfen geçerli bir token girin.");
+    function projeSil() {
+        if(!confirm("Bu projeyi silmek istediğine emin misin?")) return;
+        dProjeler.splice(dAktifIdx, 1);
+        dAktifIdx = 0;
+        dGoster();
+    }
+
+    async function githubKaydet() {
+        document.getElementById('loader').style.display = "flex";
+        
+        // Mevcut karttaki değişiklikleri diziye işle
+        const p = dProjeler[dAktifIdx];
+        p.tarih = document.getElementById('ed-tarih').innerText;
+        p.baslik = document.getElementById('ed-baslik').innerText;
+        p.metin = document.getElementById('ed-metin').innerText;
+
+        // Görsel Yükleme İşlemi
+        const fileInput = document.getElementById('file-input');
+        if(fileInput && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            const simdi = new Date();
+            const dosyaAdi = `${simdi.getDate()}-${simdi.getMonth()+1}-${simdi.getFullYear()}-${simdi.getHours()}${simdi.getMinutes()}.png`;
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            await new Promise(res => reader.onload = res);
+            const base64Content = reader.result.split(',')[1];
+
+            // Görseli images/ klasörüne yükle
+            await fetch(`https://api.github.com/repos/KullaniciAdin/RepoAdin/contents/images/${dosyaAdi}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: "Resim yukle", content: base64Content })
+            });
+            p.gorsel = dosyaAdi;
         }
+
+        // JSON Dosyasını Güncelle
+        try {
+            const path = "data/projeler.json";
+            const url = `https://api.github.com/repos/KullaniciAdin/RepoAdin/contents/${path}`;
+            
+            const getFile = await fetch(url, { headers: { 'Authorization': `token ${ghToken}` } });
+            const fileData = await getFile.json();
+            
+            // Veriyi geri çeviriyoruz (çünkü başta reverse yapmıştık, dosyaya orijinal sırada gitmeli)
+            const kaydedilecekDizi = [...dProjeler].reverse();
+
+            const putRes = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: "Proje guncelleme",
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(kaydedilecekDizi, null, 4)))),
+                    sha: fileData.sha
+                })
+            });
+
+            if(putRes.ok) alert("BAŞARIYLA YAYINLANDI!");
+            else alert("Hata oluştu.");
+        } catch (e) { alert("Sistem hatası: " + e); }
+        
+        document.getElementById('loader').style.display = "none";
+        dGoster();
     }
 
     dVeriYukle();
