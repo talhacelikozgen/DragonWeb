@@ -112,14 +112,28 @@
     let aktifIndex = 0;
 
     async function projeleriYukle() {
+        const container = document.getElementById('stack-container');
         try {
             const response = await fetch('data/projeler.json?v=' + Date.now());
-            kartVerileri = await response.json();
-            // En güncel haber en önde olsun diye reverse yapıyoruz
-            kartVerileri.reverse(); 
+            
+            if (!response.ok) {
+                throw new Error('Dosya bulunamadı (404)');
+            }
+
+            const data = await response.json();
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = "Henüz paylaşılmış bir haber yok.";
+                return;
+            }
+
+            // Veriyi al ve ters çevir (en güncel başa)
+            kartVerileri = data.reverse(); 
             kartlariOlustur();
+            
         } catch (e) {
-            document.getElementById('stack-container').innerHTML = "Veri bulunamadı.";
+            console.error("Hata detayı:", e);
+            container.innerHTML = "Veri yüklenirken bir hata oluştu. (data/projeler.json yolunu kontrol edin)";
         }
     }
 
@@ -128,26 +142,37 @@
         container.innerHTML = '';
 
         kartVerileri.forEach((p, index) => {
-            const gorselHtml = p.gorsel ? `<img src="${p.gorsel.startsWith('images/') ? p.gorsel : 'images/'+p.gorsel}" class="k-img">` : '';
-            
+            // Görsel yolu kontrolü
+            let gorselHtml = '';
+            if (p.gorsel && p.gorsel.trim() !== "") {
+                const imgPath = p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel;
+                gorselHtml = `<img src="${imgPath}" class="k-img" onerror="this.style.display='none'">`;
+            }
+
             const div = document.createElement('div');
             div.className = 'proje-kart hidden';
             div.id = `kart-${index}`;
             div.innerHTML = `
-                <div class="k-tarih">${p.tarih}</div>
-                <div class="k-baslik">${p.baslik}</div>
-                <div class="k-metin">${p.metin}</div>
+                <div class="k-tarih">${p.tarih || ''}</div>
+                <div class="k-baslik">${p.baslik || 'Başlıksız'}</div>
+                <div class="k-metin">${p.metin || ''}</div>
                 ${gorselHtml}
             `;
             container.appendChild(div);
         });
+        
+        // Kartlar oluşturulduktan sonra ilk gösterimi yap
         guncelle();
     }
 
     function guncelle() {
+        if (kartVerileri.length === 0) return;
+
         kartVerileri.forEach((_, i) => {
             const kart = document.getElementById(`kart-${i}`);
-            kart.className = 'proje-kart hidden'; // Önce hepsini gizle
+            if (!kart) return;
+
+            kart.className = 'proje-kart hidden';
 
             if (i === aktifIndex) {
                 kart.className = 'proje-kart active';
@@ -160,12 +185,17 @@
     }
 
     function slide(yon) {
-        aktifIndex += yon;
-        // Sınırları kontrol et
-        if (aktifIndex < 0) aktifIndex = 0;
-        if (aktifIndex >= kartVerileri.length) aktifIndex = kartVerileri.length - 1;
-        guncelle();
+        if (kartVerileri.length === 0) return;
+        
+        let yeniIndex = aktifIndex + yon;
+        
+        // Sınır kontrolü
+        if (yeniIndex >= 0 && yeniIndex < kartVerileri.length) {
+            aktifIndex = yeniIndex;
+            guncelle();
+        }
     }
 
-    projeleriYukle();
+    // Sayfa yüklenince başlat
+    window.addEventListener('DOMContentLoaded', projeleriYukle);
 </script>
