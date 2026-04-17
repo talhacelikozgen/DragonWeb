@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "baslik": "İlk Proje: Kod Adı Dragon",
+        "tarih": "20 Nisan 2026",
+        "metin": "Bugün oyun motoru seçimimizi yaptık. Atmosferik bir macera bizi bekliyor.",
+        "gorsel": "images/proje1.jpg"
+    },
+    {
+        "id": 2,
+        "baslik": "Karakter Tasarımları",
+        "tarih": "22 Nisan 2026",
+        "metin": "Ana karakterin miğfer tasarımları üzerinde çalışıyoruz.",
+        "gorsel": "" 
+    }
+]
