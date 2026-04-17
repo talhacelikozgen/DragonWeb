@@ -1,10 +1,10 @@
 [
     {
-        "id": 1776434389302,
+        "id": 3,
         "tarih": "17 NİSAN 2026",
-        "baslik": "Dragon Helmet Nedir?",
-        "metin": "Dragon Helmet, oyun geliştirmeye çalışan küçük bir indie game ekibinin adıdır. Burada, Dragon Hemet' da neler gündemde onları göreceksiniz",
-        "gorsel": "173-17-4-2026.png"
+        "baslik": "Merhaba Drakanlı!",
+        "metin": "Drakan gezegeninin korkusuz savaşçıları Dretnotlar, Stareaper: Biophage' de. Ağır ve teknolojik zırhlarıyla devasa bir ateş gücüne sahipler. Biophage' de yer altındaki madende yaratıklara karşı savaşıyorlar. Oyunumuzun demo sürümü yakında sizlerle olacak, takipte kalın...",
+        "gorsel": "1650-17-4-2026.png"
     },
     {
         "id": 2,
@@ -14,10 +14,10 @@
         "gorsel": ""
     },
     {
-        "id": 3,
-        "tarih": "18 NİSAN 2026",
-        "baslik": "Merhaba Drakanlı!",
-        "metin": "Drakan gezegeninin korkusuz savaşçıları Dretnotlar, Stareaper: Biophage' de. Ağır ve teknolojik zırhlarıyla devasa bir ateş gücüne sahipler. Biophage' de yer altındaki madende yaratıklara karşı savaşıyorlar. Oyunumuzun demo sürümü yakında sizlerle olacak, takipte kalın...",
-        "gorsel": "1650-17-4-2026.png"
+        "id": 1776434389302,
+        "tarih": "17 NİSAN 2026",
+        "baslik": "Dragon Helmet Nedir?",
+        "metin": "Dragon Helmet, oyun geliştirmeye çalışan küçük bir indie game ekibinin adıdır. Burada, Dragon Hemet' da neler gündemde onları göreceksiniz",
+        "gorsel": "173-17-4-2026.png"
     }
 ]
