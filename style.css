@@ -2,10 +2,29 @@
     --ana-renk: #2c3e50;
     --vurgu-renk: #c0392b;
     --arka-plan: #f4f7f6;
+    --gri-alt: #f4f4f4;
 }
 
-body { font-family: 'Georgia', serif; background: var(--arka-plan); margin: 0; }
+/* Sayfayı esnek (Flexbox) yapıyoruz ki footer en alta yapışsın */
+html, body {
+    height: 100%;
+    margin: 0;
+}
 
+body { 
+    font-family: 'Georgia', serif; 
+    background: var(--arka-plan); 
+    display: flex;
+    flex-direction: column; /* İçeriği yukarıdan aşağıya dizer */
+    min-height: 100vh;
+}
+
+/* Ana İçerik Alanı */
+.main-content {
+    flex: 1 0 auto; /* Sayfa boşsa bile tüm alanı kaplar, footer'ı aşağı iter */
+}
+
+/* Üst Sekmeler */
 .tab-wrapper {
     display: flex;
     justify-content: center;
@@ -33,4 +52,48 @@ body { font-family: 'Georgia', serif; background: var(--arka-plan); margin: 0; }
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* Diğer mevcut CSS kurallarını (main-content, slider vb.) buraya yapıştır */
+/* Admin Footer - Sayfanın En Altına Mıhlanan Kısım */
+.admin-footer {
+    background: var(--gri-alt);
+    padding: 25px 0;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    width: 100%;
+    flex-shrink: 0; /* Footer'ın ezilmesini önler */
+}
+
+#admin-form { 
+    display: none; 
+    max-width: 400px; 
+    margin: 15px auto 0; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+}
+
+.admin-input { 
+    padding: 12px; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    width: 100%; 
+    margin-bottom: 12px; 
+    box-sizing: border-box; 
+    font-size: 14px;
+    outline-color: var(--vurgu-renk);
+}
+
+/* Dragon Kart Stilleri (Eğer buraya eklemek istersen) */
+.dragon-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 15px;
+}
+
+.dragon-container.main-content {
+    flex: 1 0 auto; /* Sayfa boşsa bile tüm boşluğu kaplar ve footer'ı dibe iter */
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 15px;
+    text-align: center;
+}

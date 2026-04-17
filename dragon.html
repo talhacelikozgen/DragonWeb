@@ -20,16 +20,18 @@
     .nav-btn { background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
     .nav-btn:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
 
-    /* Admin Paneli & Yeni Butonlar */
+    /* Alt Yönetim Alanı */
+    .admin-footer { background: #f4f4f4; padding: 25px 0; margin-top: 60px; border-top: 1px solid #ddd; text-align: center; width: 100%; }
+    #admin-form { display: none; max-width: 300px; margin: 15px auto 0; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .admin-input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+
     .admin-controls { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1; margin: 0 10px; }
     .save-btn { background: #27ae60 !important; font-weight: bold; width: 100%; }
     .delete-btn { background: #c0392b !important; margin-top: 15px; font-size: 0.8rem; width: 100%; }
     .new-btn { background: #2980b9 !important; margin-bottom: 20px; width: 100%; }
 
-    #admin-form { display: none; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
-    .admin-input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
-
     .loading-overlay { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction: column; font-weight: bold; color: #c0392b; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 
 <div id="loader" class="loading-overlay">
@@ -37,9 +39,7 @@
     YAYINLANIYOR...
 </div>
 
-<style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
-
-<div class="dragon-container">
+<div class="dragon-container main-content">
     <div class="logo-area">
         <img src="images/dragon-logo.png" alt="Dragon Logo" onerror="this.src='https://via.placeholder.com/80'">
         <h2 style="margin:0; color:#2c3e50;">Dragon Helmet</h2>
@@ -61,13 +61,17 @@
         </div>
         <button class="nav-btn" id="btnIleri" onclick="projeDegistir(1)">❯</button>
     </div>
+</div>
 
-    <div class="admin-giris-alani" style="margin-top:30px;">
-        <small id="admin-toggle" style="color: #bbb; cursor: pointer; user-select: none;" onclick="document.getElementById('admin-form').style.display='block'">Yönetim</small>
-        <div id="admin-form">
-            <input type="password" id="adminToken" class="admin-input" placeholder="Token">
-            <button class="nav-btn" style="width:100%" onclick="adminModunuAc()">Giriş Yap</button>
-        </div>
+<div class="admin-footer">
+    <small id="admin-toggle" style="color: #bbb; cursor: pointer; user-select: none;" 
+           onclick="document.getElementById('admin-form').style.display='block'">
+        Yönetim
+    </small>
+    
+    <div id="admin-form">
+        <input type="password" id="adminToken" class="admin-input" placeholder="Token">
+        <button class="nav-btn" style="width:100%; background:#2c3e50;" onclick="adminModunuAc()">Giriş Yap</button>
     </div>
 </div>
 
@@ -131,7 +135,10 @@
         ghToken = document.getElementById('adminToken').value;
         if(ghToken.length < 10) return alert("Hatalı Token!");
         isAdmin = true;
-        document.getElementById('admin-form').style.display = 'none';
+        
+        // Giriş yapınca formu kapat
+        document.getElementById('admin-form').style.display = 'none'; 
+        
         document.getElementById('admin-actions').style.display = 'block';
         document.getElementById('admin-extra').style.display = 'block';
         dGoster();
