@@ -166,7 +166,7 @@
         // JSON Dosyasını Güncelle
         try {
             const path = "data/projeler.json";
-            const url = `https://api.github.com/repos/KullaniciAdin/RepoAdin/contents/${path}`;
+            const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/${path}`;
             
             const getFile = await fetch(url, { headers: { 'Authorization': `token ${ghToken}` } });
             const fileData = await getFile.json();
