@@ -1,5 +1,5 @@
 <style>
-    /* Orijinal CSS'lerin Tamamı */
+    /* Orijinal CSS Ayarları */
     header { display: flex; justify-content: flex-end; padding: 15px 30px; position: relative; }
     .menu-toggle { font-size: 2rem; cursor: pointer; background: none; border: none; color: #555; transition: 0.3s; }
     .side-menu { position: fixed; top: 0; right: -350px; width: 280px; height: 100%; background: #343a40; transition: 0.4s; z-index: 999; padding: 70px 20px 20px; overflow-y: auto; }
@@ -17,6 +17,19 @@
     .admin-area { background: #f0f0f0; padding: 15px; text-align: center; border-top: 1px solid #ddd; margin-top:20px; }
     #admin-panel { display: none; padding: 15px; }
     .admin-input { width: 85%; max-width: 320px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+
+    footer { 
+        padding: 30px; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        background: white; 
+        border-top: 1px solid #eee;
+        margin-top: auto;
+    }
+    #di-logo { max-height: 45px; height: auto; cursor: pointer; transition: transform 0.3s; }
+    #di-logo:hover { transform: scale(1.05); }
 </style>
 
 <header><button class="menu-toggle" onclick="toggleMenu()">☰</button></header>
@@ -62,37 +75,11 @@
     </div>
 </div>
 
-<style>
-    /* Footer'ı sayfaya göre ortalamak için eklenen/güncellenen stil */
-    footer { 
-        padding: 30px; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; /* Yatayda ortalar */
-        justify-content: center; /* Dikeyde ortalar */
-        background: white; 
-        border-top: 1px solid #eee;
-        margin-top: auto; /* Sayfa kısa olsa bile en alta iter */
-    }
-
-    #di-logo { 
-        max-height: 45px; 
-        height: auto; 
-        cursor: pointer; 
-        transition: transform 0.3s;
-    }
-
-    #di-logo:hover {
-        transform: scale(1.05);
-    }
-</style>
-
 <footer>
     <a href="https://dinimizislam.com/" target="_blank">
         <img src="images/di-logo-1.png" alt="Dinimiz İslam" id="di-logo">
     </a>
-    </footer>
-
+</footer>
 
 <div class="admin-area">
     <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#bbb;">Yönetim</small>
@@ -115,12 +102,13 @@
         document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
         document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
         try {
+            // VERİ YOLU DÜZELTİLDİ
             const response = await fetch('data/arsiv.json?t=' + new Date().getTime());
             const veriler = await response.json();
             const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
             bugunkuSozler = Array.isArray(veriler[anahtar]) ? veriler[anahtar] : (veriler[anahtar] ? [veriler[anahtar]] : []);
             goster();
-        } catch (e) { document.getElementById('nasihat-metni').innerText = "Hata oluştu."; }
+        } catch (e) { document.getElementById('nasihat-metni').innerText = "Arşiv yüklenemedi."; }
     }
 
     function goster() {
@@ -143,7 +131,10 @@
         const durum = document.getElementById('durum');
         if(!token || !tarih || !metin) return;
         durum.innerText = "İşleniyor...";
-        const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/arsiv.json`;
+        
+        // GITHUB API YOLU DÜZELTİLDİ (data/arsiv.json)
+        const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/data/arsiv.json`;
+        
         try {
             const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
             const fileData = await res.json();
