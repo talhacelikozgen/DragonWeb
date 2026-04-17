@@ -1,29 +1,61 @@
 <style>
-    .proje-listesi { max-width: 600px; margin: 0 auto; text-align: left; padding-bottom: 50px; }
+    .dragon-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    /* ANA LOGO BOYUTU BURADAN AYARLANIYOR */
+    .dragon-logo {
+        width: 120px; /* Dev logoyu bu boyuta sabitledik */
+        height: auto;
+        margin: 0 auto 20px auto;
+        display: block;
+        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+        transition: transform 0.3s;
+    }
+    .dragon-logo:hover { transform: scale(1.05); }
+
+    .vizyon-baslik { font-family: sans-serif; font-size: 1.8rem; color: #2c3e50; margin-bottom: 10px; }
+    .vizyon-metni { font-size: 1rem; color: #5d6d7e; font-style: italic; margin-bottom: 30px; }
+    
+    .sade-cizgi {
+        height: 2px;
+        width: 60px;
+        background: linear-gradient(90deg, transparent, #c0392b, transparent);
+        margin: 0 auto 40px auto;
+    }
+
+    /* PROJE KARTLARI */
+    .proje-listesi { max-width: 500px; margin: 0 auto; text-align: left; }
     .proje-kart { 
         background: white; border-radius: 12px; padding: 20px; 
         margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border-left: 4px solid #c0392b; animation: slideUp 0.5s ease-out;
+        border-left: 4px solid #c0392b;
     }
-    .proje-baslik { font-weight: bold; color: #2c3e50; font-size: 1.2rem; margin-bottom: 5px; }
-    .proje-tarih { color: #bdc3c7; font-size: 0.8rem; margin-bottom: 12px; text-transform: uppercase; }
-    .proje-metin { color: #5d6d7e; line-height: 1.6; }
-    .proje-img { width: 100%; border-radius: 8px; margin-top: 15px; display: none; } /* Görsel varsa JS açacak */
+    .proje-baslik { font-weight: bold; color: #2c3e50; font-size: 1.1rem; margin-bottom: 5px; }
+    .proje-tarih { color: #bdc3c7; font-size: 0.75rem; margin-bottom: 10px; }
+    .proje-metin { color: #5d6d7e; line-height: 1.5; font-size: 0.95rem; }
 
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* KART İÇİNDEKİ RESİM BOYUTU */
+    .proje-img { 
+        width: 100%; 
+        max-height: 250px; /* Çok uzun resimlerin kartı patlatmasını engeller */
+        object-fit: cover; /* Resmi sığdırmak için kırpar */
+        border-radius: 8px; 
+        margin-top: 15px; 
     }
 </style>
 
 <div class="dragon-container">
-    <img src="images/dragon-logo.png" alt="Logo" class="dragon-logo"> <h1 class="vizyon-baslik">Dragon Helmet</h1>
+    <img src="images/dragon-logo.png" alt="Logo" class="dragon-logo">
+    <h1 class="vizyon-baslik">Dragon Helmet</h1>
     <p class="vizyon-metni">"Hayal gücünün sınırlarını kodlarla zorluyoruz."</p>
     <div class="sade-cizgi"></div>
 
     <div id="proje-akisi" class="proje-listesi">
-        <p style="text-align:center; color:#ccc;">Yazılar yükleniyor...</p>
-    </div>
+        </div>
 </div>
 
 <script>
@@ -32,11 +64,13 @@
             const response = await fetch('data/projeler.json?t=' + new Date().getTime());
             const projeler = await response.json();
             const container = document.getElementById('proje-akisi');
-            container.innerHTML = ''; // Temizle
+            container.innerHTML = ''; 
 
-            projeler.reverse().forEach(p => { // En yeni en üstte
-                const gorselHtml = p.gorsel ? `<img src="${p.gorsel}" class="proje-img" style="display:block;">` : '';
-                
+            projeler.reverse().forEach(p => {
+                // Eğer gorsel varsa images/ klasöründen çek
+                const gorselYolu = p.gorsel ? (p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel) : null;
+                const gorselHtml = gorselYolu ? `<img src="${gorselYolu}" class="proje-img">` : '';
+
                 container.innerHTML += `
                     <div class="proje-kart">
                         <div class="proje-tarih">${p.tarih}</div>
@@ -47,7 +81,7 @@
                 `;
             });
         } catch (e) {
-            document.getElementById('proje-akisi').innerHTML = "Henüz bir paylaşım yapılmadı.";
+            document.getElementById('proje-akisi').innerHTML = "Yüklenemedi.";
         }
     }
     projeleriYukle();
