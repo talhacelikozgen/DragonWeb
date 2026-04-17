@@ -1,69 +1,54 @@
 <style>
-    .dragon-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 40px 20px;
-        text-align: center;
-        animation: fadeIn 0.8s ease-in;
+    .proje-listesi { max-width: 600px; margin: 0 auto; text-align: left; padding-bottom: 50px; }
+    .proje-kart { 
+        background: white; border-radius: 12px; padding: 20px; 
+        margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border-left: 4px solid #c0392b; animation: slideUp 0.5s ease-out;
     }
+    .proje-baslik { font-weight: bold; color: #2c3e50; font-size: 1.2rem; margin-bottom: 5px; }
+    .proje-tarih { color: #bdc3c7; font-size: 0.8rem; margin-bottom: 12px; text-transform: uppercase; }
+    .proje-metin { color: #5d6d7e; line-height: 1.6; }
+    .proje-img { width: 100%; border-radius: 8px; margin-top: 15px; display: none; } /* Görsel varsa JS açacak */
 
-    /* Logo Stili */
-    .dragon-logo {
-        width: 120px;
-        height: auto;
-        margin-bottom: 20px;
-        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
-        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .dragon-logo:hover {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    .vizyon-baslik {
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 2.2rem;
-        color: #2c3e50;
-        margin-top: 0;
-        margin-bottom: 15px;
-    }
-
-    .vizyon-metni {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #5d6d7e;
-        max-width: 600px;
-        margin: 0 auto 30px auto;
-        font-style: italic;
-    }
-
-    .sade-cizgi {
-        height: 2px;
-        width: 80px;
-        background: linear-gradient(90deg, transparent, #c0392b, transparent);
-        margin: 0 auto 40px auto;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
 </style>
 
 <div class="dragon-container">
-    <img src="dragon-logo.png" alt="Dragon Helmet Logo" class="dragon-logo">
-    
-    <h1 class="vizyon-baslik">Dragon Helmet</h1>
-    
-    <p class="vizyon-metni">
-        "Sadece oyun oynamak değil, hayal gücünün sınırlarını kodlarla zorlamak için buradayız. 
-        Vizyonumuz; yerli oyun geliştirme ekosistemine yenilikçi, hikaye odaklı ve 
-        teknik mükemmeliyeti hedefleyen projeler kazandırmaktır."
-    </p>
-
+    <img src="images/Dragon-logo.png" alt="Logo" class="dragon-logo"> <h1 class="vizyon-baslik">Dragon Helmet</h1>
+    <p class="vizyon-metni">"Hayal gücünün sınırlarını kodlarla zorluyoruz."</p>
     <div class="sade-cizgi"></div>
 
-    <div style="font-size: 0.85rem; color: #bdc3c7; letter-spacing: 2px; text-transform: uppercase;">
-        Proje Başlatılıyor...
+    <div id="proje-akisi" class="proje-listesi">
+        <p style="text-align:center; color:#ccc;">Yazılar yükleniyor...</p>
     </div>
 </div>
+
+<script>
+    async function projeleriYukle() {
+        try {
+            const response = await fetch('data/projeler.json?t=' + new Date().getTime());
+            const projeler = await response.json();
+            const container = document.getElementById('proje-akisi');
+            container.innerHTML = ''; // Temizle
+
+            projeler.reverse().forEach(p => { // En yeni en üstte
+                const gorselHtml = p.gorsel ? `<img src="${p.gorsel}" class="proje-img" style="display:block;">` : '';
+                
+                container.innerHTML += `
+                    <div class="proje-kart">
+                        <div class="proje-tarih">${p.tarih}</div>
+                        <div class="proje-baslik">${p.baslik}</div>
+                        <div class="proje-metin">${p.metin}</div>
+                        ${gorselHtml}
+                    </div>
+                `;
+            });
+        } catch (e) {
+            document.getElementById('proje-akisi').innerHTML = "Henüz bir paylaşım yapılmadı.";
+        }
+    }
+    projeleriYukle();
+</script>
