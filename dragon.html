@@ -4,21 +4,12 @@
         margin: 0 auto;
         padding: 40px 20px;
         text-align: center;
+        font-family: sans-serif;
     }
 
-    /* ANA LOGO BOYUTU BURADAN AYARLANIYOR */
-    .dragon-logo {
-        width: 120px; /* Dev logoyu bu boyuta sabitledik */
-        height: auto;
-        margin: 0 auto 20px auto;
-        display: block;
-        filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
-        transition: transform 0.3s;
-    }
-    .dragon-logo:hover { transform: scale(1.05); }
-
-    .vizyon-baslik { font-family: sans-serif; font-size: 1.8rem; color: #2c3e50; margin-bottom: 10px; }
-    .vizyon-metni { font-size: 1rem; color: #5d6d7e; font-style: italic; margin-bottom: 30px; }
+    /* Vizyon Alanı */
+    .vizyon-baslik { font-size: 1.8rem; color: #2c3e50; margin: 15px 0 10px; }
+    .vizyon-metni { font-size: 1rem; color: #5d6d7e; font-style: italic; margin-bottom: 30px; line-height: 1.6; }
     
     .sade-cizgi {
         height: 2px;
@@ -31,45 +22,52 @@
     .proje-listesi { max-width: 500px; margin: 0 auto; text-align: left; }
     .proje-kart { 
         background: white; border-radius: 12px; padding: 20px; 
-        margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         border-left: 4px solid #c0392b;
     }
     .proje-baslik { font-weight: bold; color: #2c3e50; font-size: 1.1rem; margin-bottom: 5px; }
-    .proje-tarih { color: #bdc3c7; font-size: 0.75rem; margin-bottom: 10px; }
+    .proje-tarih { color: #bdc3c7; font-size: 0.75rem; margin-bottom: 10px; text-transform: uppercase; }
     .proje-metin { color: #5d6d7e; line-height: 1.5; font-size: 0.95rem; }
 
-    /* KART İÇİNDEKİ RESİM BOYUTU */
+    /* KART İÇİNDEKİ RESİMLER */
     .proje-img { 
         width: 100%; 
-        max-height: 250px; /* Çok uzun resimlerin kartı patlatmasını engeller */
-        object-fit: cover; /* Resmi sığdırmak için kırpar */
+        max-height: 200px; 
+        object-fit: cover; 
         border-radius: 8px; 
         margin-top: 15px; 
     }
 </style>
 
 <div class="dragon-container">
-    <img src="images/dragon-logo.png" alt="Logo" class="dragon-logo">
+    <img src="images/dragon-logo.png" alt="Logo" 
+         style="width: 100px !important; height: 100px !important; object-fit: cover; border-radius: 50%; border: 3px solid #f0f0f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; margin: 0 auto;">
+    
     <h1 class="vizyon-baslik">Dragon Helmet</h1>
     <p class="vizyon-metni">"Hayal gücünün sınırlarını kodlarla zorluyoruz."</p>
+    
     <div class="sade-cizgi"></div>
 
     <div id="proje-akisi" class="proje-listesi">
-        </div>
+        <p style="text-align:center; color:#ccc;">Yükleniyor...</p>
+    </div>
 </div>
 
 <script>
     async function projeleriYukle() {
         try {
-            const response = await fetch('data/projeler.json?t=' + new Date().getTime());
+            const response = await fetch('data/projeler.json?v=' + Date.now());
             const projeler = await response.json();
             const container = document.getElementById('proje-akisi');
             container.innerHTML = ''; 
 
             projeler.reverse().forEach(p => {
-                // Eğer gorsel varsa images/ klasöründen çek
-                const gorselYolu = p.gorsel ? (p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel) : null;
-                const gorselHtml = gorselYolu ? `<img src="${gorselYolu}" class="proje-img">` : '';
+                // Görsel yolu kontrolü
+                let gorselHtml = '';
+                if(p.gorsel) {
+                    const src = p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel;
+                    gorselHtml = `<img src="${src}" class="proje-img">`;
+                }
 
                 container.innerHTML += `
                     <div class="proje-kart">
@@ -81,7 +79,7 @@
                 `;
             });
         } catch (e) {
-            document.getElementById('proje-akisi').innerHTML = "Yüklenemedi.";
+            document.getElementById('proje-akisi').innerHTML = "Henüz bir veri bulunamadı.";
         }
     }
     projeleriYukle();
