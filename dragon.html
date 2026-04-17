@@ -1,37 +1,20 @@
 <style>
-    .dragon-container { 
-        max-width: 500px; 
-        margin: 20px auto; 
-        padding: 15px; 
-        text-align: center; 
-        font-family: sans-serif;
-    }
-    
-    .logo-area img { 
-        width: 80px; height: 80px; 
-        border-radius: 50%; 
-        border: 3px solid #f0f0f0; 
-        margin-bottom: 10px;
-        transition: transform 0.3s;
-    }
-    .logo-area img:hover { transform: scale(1.1); }
+    .dragon-container { max-width: 500px; margin: 20px auto; padding: 15px; text-align: center; font-family: sans-serif; position: relative; }
+    .logo-area img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #f0f0f0; margin-bottom: 10px; }
 
-    .kart-cerceve { 
-        min-height: 300px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        margin: 20px 0;
-    }
-
+    .kart-cerceve { min-height: 300px; display: flex; align-items: center; justify-content: center; margin: 20px 0; }
     .proje-kart {
-        background: white; 
-        width: 100%; 
-        padding: 20px; 
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-        border-top: 4px solid #c0392b;
-        text-align: left;
+        background: white; width: 100%; padding: 20px; border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 4px solid #c0392b;
+        text-align: left; position: relative;
+    }
+
+    /* Düzenlenebilir Alan Efekti */
+    [contenteditable="true"] { 
+        border: 1px dashed #c0392b; 
+        padding: 5px; 
+        border-radius: 4px; 
+        background-color: #fffcfc;
     }
 
     .k-tarih { color: #bbb; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
@@ -40,12 +23,19 @@
     .k-img { width: 100%; border-radius: 8px; margin-top: 15px; display: block; }
 
     .nav-bar { display: flex; justify-content: space-between; align-items: center; }
-    .nav-btn { 
-        background: #34495e; color: white; border: none; 
-        padding: 10px 18px; border-radius: 6px; cursor: pointer;
-    }
+    .nav-btn { background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; }
     .nav-btn:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
     .sayfalar { font-size: 0.85rem; color: #999; font-weight: bold; }
+
+    /* Admin Paneli Stilleri */
+    .admin-giris-alani { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
+    #admin-form { display: none; margin-top: 10px; }
+    .admin-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 80%; max-width: 250px; }
+    .edit-badge { 
+        display: none; position: absolute; top: -10px; right: -10px; 
+        background: #e67e22; color: white; padding: 4px 8px; 
+        border-radius: 4px; font-size: 0.7rem; font-weight: bold;
+    }
 </style>
 
 <div class="dragon-container">
@@ -64,26 +54,32 @@
         <span class="sayfalar" id="sayfaBilgi">0 / 0</span>
         <button class="nav-btn" id="btnIleri" onclick="projeDegistir(1)">❯</button>
     </div>
+
+    <div class="admin-giris-alani">
+        <small id="admin-ac-btn" style="color: #eee; cursor: pointer;" onclick="toggleAdminForm()">Yönetim</small>
+        <div id="admin-form">
+            <input type="password" id="adminToken" class="admin-input" placeholder="GitHub Token Giriniz">
+            <button class="nav-btn" style="padding: 8px 15px; background: #2c3e50;" onclick="adminModunuAc()">Giriş</button>
+        </div>
+    </div>
 </div>
 
 <script>
     let dProjeler = [];
     let dAktifIdx = 0;
+    let isAdmin = false;
 
     async function dVeriYukle() {
         const alan = document.getElementById('proje-yukleme-alani');
         try {
-            // Zaman damgası (Date.now) ile cache temizleme yapıyoruz
             const res = await fetch('data/projeler.json?t=' + Date.now());
             if (!res.ok) throw new Error("JSON dosyasına ulaşılamadı.");
-            
             dProjeler = await res.json();
             if (dProjeler.length === 0) {
                 alan.innerHTML = "<p>Henüz proje eklenmemiş.</p>";
                 return;
             }
-
-            // Yeni haber en üstte olsun
+            // Yeni haber en üstte
             dProjeler.reverse();
             dGoster();
         } catch (err) {
@@ -101,12 +97,18 @@
             imgTag = `<img src="${yol}" class="k-img" onerror="this.style.display='none'">`;
         }
 
+        // Admin modundaysak alanları düzenlenebilir yapıyoruz
+        const editableAttr = isAdmin ? 'contenteditable="true"' : '';
+        const badgeStyle = isAdmin ? 'display: block;' : '';
+
         alan.innerHTML = `
             <div class="proje-kart">
-                <div class="k-tarih">${p.tarih}</div>
-                <div class="k-baslik">${p.baslik}</div>
-                <div class="k-metin">${p.metin}</div>
+                <div class="edit-badge" style="${badgeStyle}">EDİT MODU</div>
+                <div class="k-tarih" ${editableAttr} id="edit-tarih">${p.tarih}</div>
+                <div class="k-baslik" ${editableAttr} id="edit-baslik">${p.baslik}</div>
+                <div class="k-metin" ${editableAttr} id="edit-metin">${p.metin}</div>
                 ${imgTag}
+                ${isAdmin ? `<div style="margin-top:10px;"><small style="color:#bbb;">Görsel adı:</small> <input type="text" id="edit-gorsel" value="${p.gorsel}" class="admin-input" style="font-size:0.7rem; width:60%;"></div>` : ''}
             </div>
         `;
 
@@ -120,6 +122,23 @@
         dGoster();
     }
 
-    // Fonksiyon isimlerini d harfiyle başlattım ki diğer scriptlerle çakışmasın
+    // ADMİN MODU FONKSİYONLARI
+    function toggleAdminForm() {
+        const form = document.getElementById('admin-form');
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function adminModunuAc() {
+        const token = document.getElementById('adminToken').value;
+        if (token.length > 5) { // Basit bir kontrol, asıl kontrol 4. adımda kayıt yaparken olacak
+            isAdmin = true;
+            alert("Edit modu aktif! Kartlardaki yazıların üzerine tıklayarak değiştirebilirsiniz.");
+            document.getElementById('admin-form').style.display = 'none';
+            dGoster();
+        } else {
+            alert("Lütfen geçerli bir token girin.");
+        }
+    }
+
     dVeriYukle();
 </script>
