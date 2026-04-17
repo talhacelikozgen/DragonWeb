@@ -62,10 +62,37 @@
     </div>
 </div>
 
+<style>
+    /* Footer'ı sayfaya göre ortalamak için eklenen/güncellenen stil */
+    footer { 
+        padding: 30px; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; /* Yatayda ortalar */
+        justify-content: center; /* Dikeyde ortalar */
+        background: white; 
+        border-top: 1px solid #eee;
+        margin-top: auto; /* Sayfa kısa olsa bile en alta iter */
+    }
+
+    #di-logo { 
+        max-height: 45px; 
+        height: auto; 
+        cursor: pointer; 
+        transition: transform 0.3s;
+    }
+
+    #di-logo:hover {
+        transform: scale(1.05);
+    }
+</style>
+
 <footer>
-    <a href="https://dinimizislam.com/" target="_blank"><img src="di-logo-1.png" style="max-height: 45px;"></a>
-    <div style="font-size: 0.75rem; color: #bbb; margin-top:10px;">Dragon Helmet geliştirilene kadar hizmetinizdedir.</div>
-</footer>
+    <a href="https://dinimizislam.com/" target="_blank">
+        <img src="di-logo-1.png" alt="Dinimiz İslam" id="di-logo">
+    </a>
+    </footer>
+
 
 <div class="admin-area">
     <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#bbb;">Yönetim</small>
