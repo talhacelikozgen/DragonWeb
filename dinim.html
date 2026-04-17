@@ -1,23 +1,41 @@
 <style>
-    /* Senin verdiğin CSS'ler (Özetlendi) */
-    .main-content { display: flex; flex-direction: column; align-items: center; padding-top: 40px; text-align: center; }
-    .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; }
-    .slider-container { display: flex; align-items: center; justify-content: center; width: 90%; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-    #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: #2c3e50; }
+    /* Orijinal CSS'lerin Tamamı */
+    header { display: flex; justify-content: flex-end; padding: 15px 30px; position: relative; }
+    .menu-toggle { font-size: 2rem; cursor: pointer; background: none; border: none; color: #555; transition: 0.3s; }
     .side-menu { position: fixed; top: 0; right: -350px; width: 280px; height: 100%; background: #343a40; transition: 0.4s; z-index: 999; padding: 70px 20px 20px; overflow-y: auto; }
-    .side-menu.active { right: 0; }
-    .menu-item { display: block; background: #495057; color: white; text-decoration: none; padding: 12px; margin-bottom: 8px; border-radius: 5px; }
-    /* ... Diğer CSS'lerini buraya ekle ... */
+    .side-menu.active { right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
+    .menu-item { display: block; background: #495057; color: white; text-decoration: none; padding: 12px; margin-bottom: 8px; border-radius: 5px; font-family: sans-serif; transition: 0.2s; }
+    .menu-item:hover { background: #c0392b; padding-left: 20px; }
+    .close-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 2.5rem; border: none; background: none; cursor: pointer; }
+    .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 40px; text-align: center; }
+    .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+    #gun-adi { color: #888; text-transform: uppercase; letter-spacing: 3px; font-size: 0.85rem; }
+    .slider-container { display: flex; align-items: center; justify-content: center; max-width: 700px; width: 90%; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03); }
+    #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: #2c3e50; margin-bottom: 15px; }
+    .nav-btn { background: none; border: 1px solid #eee; color: #ddd; font-size: 1.5rem; cursor: pointer; border-radius: 50%; width: 45px; height: 45px; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+    .nav-btn:hover:not(:disabled) { border-color: #c0392b; color: #c0392b; }
+    .admin-area { background: #f0f0f0; padding: 15px; text-align: center; border-top: 1px solid #ddd; margin-top:20px; }
+    #admin-panel { display: none; padding: 15px; }
+    .admin-input { width: 85%; max-width: 320px; padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
 </style>
 
-<header style="display: flex; justify-content: flex-end; padding: 15px 30px;">
-    <button class="menu-toggle" onclick="toggleMenu()" style="font-size:2rem; background:none; border:none; cursor:pointer;">☰</button>
-</header>
+<header><button class="menu-toggle" onclick="toggleMenu()">☰</button></header>
 
 <div class="side-menu" id="side-menu">
-    <button onclick="toggleMenu()" style="color:white; background:none; border:none; font-size:2rem; cursor:pointer;">×</button>
+    <button class="close-btn" onclick="toggleMenu()">×</button>
+    <a href="http://huseyinhilmiisik.com/" target="_blank" class="menu-item">Hüseyin Hilmi Işık</a>
+    <a href="https://hakikatkitabevi.com/" target="_blank" class="menu-item">Hakikat Kitabevi</a>
+    <a href="https://osman-unlu.com/" target="_blank" class="menu-item">Osman Ünlü</a>
+    <a href="https://namazvakti.com/" target="_blank" class="menu-item">Namaz Vakti</a>
     <a href="https://dinimizislam.com/" target="_blank" class="menu-item">Dinimiz İslam</a>
-    </div>
+    <a href="https://turkiyegazetesi.com.tr/bizim-sayfa" target="_blank" class="menu-item">Bizim Sayfa</a>
+    <a href="https://youtube.com/@muziksizilahilertv" target="_blank" class="menu-item">Müziksiz İlahiler</a>
+    <a href="https://huzurpinari.com/" target="_blank" class="menu-item">Huzur Pınarı</a>
+    <a href="https://myreligionislam.com/" target="_blank" class="menu-item">My Religion Islam</a>
+    <a href="https://notrereligionislam.com/" target="_blank" class="menu-item">Notre Religion Islam</a>
+    <a href="https://serenityfountain.org/" target="_blank" class="menu-item">Serenity Fountain</a>
+    <a href="https://youtube.com/@gonulsultanlaritv" target="_blank" class="menu-item">Gönül Sultanları</a>
+</div>
 
 <div class="main-content">
     <div class="tarih-container">
@@ -25,22 +43,46 @@
         <div id="gun-adi"></div>
     </div>
     <div class="slider-container">
-        <button class="nav-btn" onclick="degistir(-1)">❮</button>
+        <button class="nav-btn" id="prev-btn" onclick="degistir(-1)">❮</button>
         <div class="nasihat-box">
             <p id="nasihat-metni">Yükleniyor...</p>
+            <div style="border-bottom: 1px solid #eee; width: 30%; margin: 10px auto;"></div>
+            <div style="font-size: 0.85rem; color: #bbb; font-style: italic;">Kaynak: Türkiye Takvimi</div>
         </div>
-        <button class="nav-btn" onclick="degistir(1)">❯</button>
+        <button class="nav-btn" id="next-btn" onclick="degistir(1)">❯</button>
     </div>
-    <img src="B000.png" style="width:80%; margin-top:20px;">
+    <div id="sayfa-bilgi" style="margin-top: 15px; color: #ccc; font-size: 0.75rem;"></div>
+
+    <div style="margin-top: 45px; width: 100%; max-width: 450px;">
+        <a href="https://hakikatkitabevi.net/" target="_blank"><img src="B000.png" style="width: 85%; height: auto;"></a>
+    </div>
+
+    <div style="width: 95%; max-width: 800px; margin: 20px auto 40px;">
+        <a href="https://tgrtfm.com.tr/canli-yayin" target="_blank"><img src="islam_ve_toplum_osman_unlu.png" style="width: 100%; border-radius: 10px;"></a>
+    </div>
+</div>
+
+<footer>
+    <a href="https://dinimizislam.com/" target="_blank"><img src="di-logo-1.png" style="max-height: 45px;"></a>
+    <div style="font-size: 0.75rem; color: #bbb; margin-top:10px;">Dragon Helmet geliştirilene kadar hizmetinizdedir.</div>
+</footer>
+
+<div class="admin-area">
+    <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#bbb;">Yönetim</small>
+    <div id="admin-panel">
+        <input type="password" id="token" class="admin-input" placeholder="Token"> <br>
+        <input type="text" id="yeni-tarih" class="admin-input" placeholder="04-16"> <br>
+        <textarea id="yeni-metin" class="admin-input" rows="2" placeholder="Nasihat metni..."></textarea> <br>
+        <button onclick="yayinla()" style="padding:10px 20px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">YAYINLA</button>
+        <p id="durum" style="font-size: 0.85rem; margin-top: 8px; font-weight: bold;"></p>
+    </div>
 </div>
 
 <script>
-    // Buraya senin tüm JavaScript mantığını (veriyiYukle, goster, yayinla vb.) yapıştır
     var bugunkuSozler = [];
     var aktifIndex = 0;
-    
     function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
-    
+
     async function veriyiYukle() {
         const simdi = new Date();
         document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -49,19 +91,47 @@
             const response = await fetch('arsiv.json?t=' + new Date().getTime());
             const veriler = await response.json();
             const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
-            bugunkuSozler = veriler[anahtar] || [];
+            bugunkuSozler = Array.isArray(veriler[anahtar]) ? veriler[anahtar] : (veriler[anahtar] ? [veriler[anahtar]] : []);
             goster();
-        } catch (e) { console.log("Hata"); }
+        } catch (e) { document.getElementById('nasihat-metni').innerText = "Hata oluştu."; }
     }
-    
+
     function goster() {
-        if(bugunkuSozler.length > 0) document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
+        if (bugunkuSozler.length === 0) {
+            document.getElementById('nasihat-metni').innerText = "Kayıt bulunamadı.";
+            return;
+        }
+        document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
+        document.getElementById('sayfa-bilgi').innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
+        document.getElementById('prev-btn').disabled = aktifIndex === 0;
+        document.getElementById('next-btn').disabled = aktifIndex === bugunkuSozler.length - 1;
     }
-    
-    function degistir(yon) { 
-        aktifIndex = (aktifIndex + yon + bugunkuSozler.length) % bugunkuSozler.length; 
-        goster(); 
+
+    function degistir(yon) { aktifIndex += yon; goster(); }
+
+    async function yayinla() {
+        const token = document.getElementById('token').value;
+        const tarih = document.getElementById('yeni-tarih').value;
+        const metin = document.getElementById('yeni-metin').value;
+        const durum = document.getElementById('durum');
+        if(!token || !tarih || !metin) return;
+        durum.innerText = "İşleniyor...";
+        const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/arsiv.json`;
+        try {
+            const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+            const fileData = await res.json();
+            let decoded = decodeURIComponent(atob(fileData.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            let content = JSON.parse(decoded);
+            if (!Array.isArray(content[tarih])) content[tarih] = content[tarih] ? [content[tarih], metin] : [metin];
+            else content[tarih].push(metin);
+            const base64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g, (m, p) => String.fromCharCode('0x' + p)));
+            const update = await fetch(url, {
+                method: "PUT",
+                headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `${tarih} eklendi`, content: base64, sha: fileData.sha })
+            });
+            durum.innerText = update.ok ? "Başarıyla Yayınlandı!" : "Hata!";
+        } catch (e) { durum.innerText = "Hata!"; }
     }
-    
     veriyiYukle();
 </script>
