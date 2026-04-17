@@ -1,0 +1,67 @@
+<style>
+    /* Senin verdiğin CSS'ler (Özetlendi) */
+    .main-content { display: flex; flex-direction: column; align-items: center; padding-top: 40px; text-align: center; }
+    .tarih { color: #c0392b; font-weight: bold; font-size: 1.2rem; }
+    .slider-container { display: flex; align-items: center; justify-content: center; width: 90%; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    #nasihat-metni { font-size: 1.4rem; line-height: 1.7; color: #2c3e50; }
+    .side-menu { position: fixed; top: 0; right: -350px; width: 280px; height: 100%; background: #343a40; transition: 0.4s; z-index: 999; padding: 70px 20px 20px; overflow-y: auto; }
+    .side-menu.active { right: 0; }
+    .menu-item { display: block; background: #495057; color: white; text-decoration: none; padding: 12px; margin-bottom: 8px; border-radius: 5px; }
+    /* ... Diğer CSS'lerini buraya ekle ... */
+</style>
+
+<header style="display: flex; justify-content: flex-end; padding: 15px 30px;">
+    <button class="menu-toggle" onclick="toggleMenu()" style="font-size:2rem; background:none; border:none; cursor:pointer;">☰</button>
+</header>
+
+<div class="side-menu" id="side-menu">
+    <button onclick="toggleMenu()" style="color:white; background:none; border:none; font-size:2rem; cursor:pointer;">×</button>
+    <a href="https://dinimizislam.com/" target="_blank" class="menu-item">Dinimiz İslam</a>
+    </div>
+
+<div class="main-content">
+    <div class="tarih-container">
+        <div class="tarih" id="gercek-tarih"></div>
+        <div id="gun-adi"></div>
+    </div>
+    <div class="slider-container">
+        <button class="nav-btn" onclick="degistir(-1)">❮</button>
+        <div class="nasihat-box">
+            <p id="nasihat-metni">Yükleniyor...</p>
+        </div>
+        <button class="nav-btn" onclick="degistir(1)">❯</button>
+    </div>
+    <img src="B000.png" style="width:80%; margin-top:20px;">
+</div>
+
+<script>
+    // Buraya senin tüm JavaScript mantığını (veriyiYukle, goster, yayinla vb.) yapıştır
+    var bugunkuSozler = [];
+    var aktifIndex = 0;
+    
+    function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
+    
+    async function veriyiYukle() {
+        const simdi = new Date();
+        document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
+        try {
+            const response = await fetch('arsiv.json?t=' + new Date().getTime());
+            const veriler = await response.json();
+            const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
+            bugunkuSozler = veriler[anahtar] || [];
+            goster();
+        } catch (e) { console.log("Hata"); }
+    }
+    
+    function goster() {
+        if(bugunkuSozler.length > 0) document.getElementById('nasihat-metni').innerText = bugunkuSozler[aktifIndex];
+    }
+    
+    function degistir(yon) { 
+        aktifIndex = (aktifIndex + yon + bugunkuSozler.length) % bugunkuSozler.length; 
+        goster(); 
+    }
+    
+    veriyiYukle();
+</script>
