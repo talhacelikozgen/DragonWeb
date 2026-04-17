@@ -3,44 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Helmet & Dinimiz İslam</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <div class="tab-wrapper">
-        <button class="tab-btn active" onclick="yukle('dinimiz_islam.html', this)">Dinimiz İslam</button>
-        <button class="tab-btn" onclick="yukle('dragon_helmet.html', this)">Dragon Helmet</button>
-    </div>
-
-    <div id="main-container">
-        </div>
+    <title>Dragon Helmet - Dinimiz İslam</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <style>
+        :root {
+            --ana-renk: #2c3e50;
+            --vurgu-renk: #c0392b;
+            --arka-plan: #f4f7f6;
+        }
+        body { margin: 0; font-family: 'Georgia', serif; background: var(--arka-plan); }
+        
+        /* Sekme Menüsü */
+        .tab-wrapper {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            color: var(--vurgu-renk);
+            border-bottom: 3px solid var(--vurgu-renk);
+        }
+        #content-area { min-height: 80vh; }
+    </style>
 
     <script>
-        // Dosyayı dinamik olarak çekip container içine koyan fonksiyon
-        async function yukle(dosyaAdi, element) {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        async function loadPage(page) {
+            const container = document.getElementById('content-area');
+            const btns = document.querySelectorAll('.tab-btn');
+            
+            // Aktif buton stilini değiştir
+            btns.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
             try {
-                const response = await fetch(dosyaAdi);
+                const response = await fetch(page);
                 const html = await response.text();
-                document.getElementById('main-container').innerHTML = html;
+                container.innerHTML = html;
 
-                // Butonların aktiflik durumunu güncelle
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                element.classList.add('active');
-
-                // Eğer yüklenen dosya içinde script varsa onları çalıştır
-                if(dosyaAdi === 'dinimiz_islam.html') {
-                    veriyiYukle(); // dinimiz_islam.html içindeki fonksiyon
-                }
-            } catch (error) {
-                console.error("Dosya yüklenemedi:", error);
+                // İçerik yüklendikten sonra içindeki scriptleri manuel çalıştır
+                const scripts = container.querySelectorAll("script");
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement("script");
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (err) {
+                container.innerHTML = "Sayfa yüklenirken hata oluştu.";
             }
         }
 
-        // Sayfa açıldığında ilk sekmeyi yükle
+        // İlk açılışta Dinimiz İslam'ı yükle
         window.onload = () => {
-            yukle('dinimiz_islam.html', document.querySelector('.tab-btn'));
+            document.querySelector('.tab-btn').click();
         };
     </script>
+</head>
+<body>
+    <div class="tab-wrapper">
+        <button class="tab-btn active" onclick="loadPage('dinim.html')">Dinimiz İslam</button>
+        <button class="tab-btn" onclick="loadPage('dragon.html')">Dragon Helmet</button>
+    </div>
+    <div id="content-area"></div>
 </body>
 </html>
