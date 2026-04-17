@@ -4,106 +4,108 @@
         margin: 0 auto;
         padding: 20px;
         text-align: center;
-        font-family: 'Segoe UI', sans-serif;
-        overflow: hidden; /* Kartların taşmasını önler */
+        font-family: 'Segoe UI', Roboto, sans-serif;
     }
 
-    /* Stack Sahnesi */
     .stack-wrapper {
         position: relative;
-        height: 450px; /* Kartların boyuna göre ayarlandı */
+        height: 480px; /* Biraz yükselttik içerik sığsın diye */
         width: 100%;
-        perspective: 1000px; /* 3D derinlik hissi */
-        margin-top: 30px;
+        perspective: 1200px;
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    /* Genel Kart Stili */
     .proje-kart {
         position: absolute;
-        width: 85%;
-        max-width: 400px;
-        left: 50%;
-        top: 50%;
+        width: 90%;
+        max-width: 380px;
         background: white;
         border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         border-left: 5px solid #c0392b;
-        transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         user-select: none;
-        transform-origin: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: left;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateZ(-100px) scale(0.8);
     }
 
-    /* DURUM 1: Aktif (Öndeki) Kart */
+    /* AKTİF KART (Tam Merkez) */
     .proje-kart.active {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
-        z-index: 10;
         opacity: 1;
-        filter: blur(0);
+        z-index: 10;
+        pointer-events: all;
+        transform: translateX(0) translateZ(0) scale(1);
     }
 
-    /* DURUM 2: Sol Arka (Gelecek) Kart */
+    /* SOLDAKİ KART (Gelecek) */
     .proje-kart.prev {
-        transform: translate(-110%, -50%) scale(0.85) rotate(-5deg);
-        z-index: 5;
         opacity: 0.4;
+        z-index: 5;
+        transform: translateX(-105%) translateZ(-200px) scale(0.8) rotate(-5deg);
         filter: blur(2px);
-        pointer-events: none;
     }
 
-    /* DURUM 3: Sağ Arka (Geçmiş) Kart */
+    /* SAĞDAKİ KART (Geçmiş) */
     .proje-kart.next {
-        transform: translate(10%, -50%) scale(0.85) rotate(5deg);
-        z-index: 5;
         opacity: 0.4;
+        z-index: 5;
+        transform: translateX(105%) translateZ(-200px) scale(0.8) rotate(5deg);
         filter: blur(2px);
-        pointer-events: none;
     }
 
-    /* DURUM 4: Uzaktaki Kartlar (Gizli) */
+    /* DİĞERLERİ */
     .proje-kart.hidden {
-        transform: translate(-50%, -50%) scale(0.5);
         opacity: 0;
         z-index: 0;
+        transform: translateX(0) translateZ(-400px) scale(0.5);
     }
 
-    /* İçerik Detayları */
-    .k-tarih { color: #bdc3c7; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
-    .k-baslik { color: #2c3e50; font-size: 1.3rem; margin-bottom: 15px; font-weight: 800; }
-    .k-metin { color: #5d6d7e; font-size: 0.95rem; line-height: 1.6; overflow-y: auto; max-height: 150px; }
-    .k-img { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-top: 15px; }
+    .k-tarih { color: #bdc3c7; font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
+    .k-baslik { color: #2c3e50; font-size: 1.2rem; margin-bottom: 12px; font-weight: bold; }
+    .k-metin { 
+        color: #5d6d7e; font-size: 0.9rem; line-height: 1.5; 
+        max-height: 120px; overflow-y: auto; padding-right: 5px;
+    }
+    .k-img { 
+        width: 100%; height: 150px; object-fit: cover; 
+        border-radius: 12px; margin-top: 15px; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
 
-    /* Navigasyon Okları */
     .nav-controls {
         display: flex;
         justify-content: center;
-        gap: 40px;
-        margin-top: 20px;
+        gap: 30px;
+        margin-top: 25px;
     }
     .stack-btn {
-        background: white; border: 2px solid #eee; width: 50px; height: 50px;
-        border-radius: 50%; cursor: pointer; transition: 0.3s; font-size: 1.2rem;
-        display: flex; align-items: center; justify-content: center; color: #2c3e50;
+        background: #fff; border: 1px solid #eee; width: 55px; height: 55px;
+        border-radius: 50%; cursor: pointer; transition: 0.3s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        display: flex; align-items: center; justify-content: center;
+        color: #333; font-size: 1.2rem;
     }
-    .stack-btn:hover { border-color: #c0392b; color: #c0392b; transform: scale(1.1); }
+    .stack-btn:hover:not(:disabled) { border-color: #c0392b; color: #c0392b; transform: translateY(-2px); }
+    .stack-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 </style>
 
 <div class="dragon-container">
-    <img src="images/dragon-logo.png" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 10px; display: block;">
-    <h1 style="font-size: 1.5rem; color: #2c3e50;">Dragon Helmet</h1>
-    <div class="sade-cizgi" style="width: 40px; height: 2px; background: #c0392b; margin: 10px auto 30px;"></div>
+    <img src="images/dragon-logo.png" style="width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 10px; display: block; border: 2px solid #eee;">
+    <h1 style="font-size: 1.4rem; color: #2c3e50; margin: 0;">Dragon Helmet</h1>
+    <div style="width: 30px; height: 3px; background: #c0392b; margin: 10px auto 25px;"></div>
 
     <div class="stack-wrapper" id="stack-container">
-        <p style="text-align:center; color:#ccc; padding-top:100px;">Haberler yükleniyor...</p>
+        <p style="color:#bbb;">Haberler hazırlanıyor...</p>
     </div>
 
     <div class="nav-controls">
-        <button class="stack-btn" onclick="slide(-1)">❮</button>
-        <button class="stack-btn" onclick="slide(1)">❯</button>
+        <button class="stack-btn" id="prevBtn" onclick="slide(-1)">❮</button>
+        <button class="stack-btn" id="nextBtn" onclick="slide(1)">❯</button>
     </div>
 </div>
 
@@ -114,26 +116,20 @@
     async function projeleriYukle() {
         const container = document.getElementById('stack-container');
         try {
-            const response = await fetch('data/projeler.json?v=' + Date.now());
+            const response = await fetch('data/projeler.json?t=' + Date.now());
+            if (!response.ok) throw new Error('JSON bulunamadı');
             
-            if (!response.ok) {
-                throw new Error('Dosya bulunamadı (404)');
-            }
-
             const data = await response.json();
-            
             if (!data || data.length === 0) {
-                container.innerHTML = "Henüz paylaşılmış bir haber yok.";
+                container.innerHTML = "<p style='color:#ccc;'>Henüz bir içerik girilmemiş.</p>";
                 return;
             }
 
-            // Veriyi al ve ters çevir (en güncel başa)
-            kartVerileri = data.reverse(); 
+            // JSON'daki sırayı koru (eğer JSON eskiyse reverse() ekleyebilirsin)
+            kartVerileri = data; 
             kartlariOlustur();
-            
         } catch (e) {
-            console.error("Hata detayı:", e);
-            container.innerHTML = "Veri yüklenirken bir hata oluştu. (data/projeler.json yolunu kontrol edin)";
+            container.innerHTML = "<p style='color:#e74c3c;'>Bağlantı hatası: Veriler yüklenemedi.</p>";
         }
     }
 
@@ -142,26 +138,24 @@
         container.innerHTML = '';
 
         kartVerileri.forEach((p, index) => {
-            // Görsel yolu kontrolü
             let gorselHtml = '';
-            if (p.gorsel && p.gorsel.trim() !== "") {
+            if (p.gorsel) {
                 const imgPath = p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel;
-                gorselHtml = `<img src="${imgPath}" class="k-img" onerror="this.style.display='none'">`;
+                gorselHtml = `<img src="${imgPath}" class="k-img" onerror="this.parentElement.removeChild(this)">`;
             }
 
             const div = document.createElement('div');
-            div.className = 'proje-kart hidden';
+            div.className = 'proje-kart';
             div.id = `kart-${index}`;
+            div.setAttribute('data-id', p.id); // Admin modu için kimlik
             div.innerHTML = `
-                <div class="k-tarih">${p.tarih || ''}</div>
-                <div class="k-baslik">${p.baslik || 'Başlıksız'}</div>
-                <div class="k-metin">${p.metin || ''}</div>
+                <div class="k-tarih">${p.tarih}</div>
+                <div class="k-baslik">${p.baslik}</div>
+                <div class="k-metin">${p.metin}</div>
                 ${gorselHtml}
             `;
             container.appendChild(div);
         });
-        
-        // Kartlar oluşturulduktan sonra ilk gösterimi yap
         guncelle();
     }
 
@@ -172,30 +166,31 @@
             const kart = document.getElementById(`kart-${i}`);
             if (!kart) return;
 
-            kart.className = 'proje-kart hidden';
+            kart.classList.remove('active', 'prev', 'next', 'hidden');
 
             if (i === aktifIndex) {
-                kart.className = 'proje-kart active';
+                kart.classList.add('active');
             } else if (i === aktifIndex - 1) {
-                kart.className = 'proje-kart prev';
+                kart.classList.add('prev');
             } else if (i === aktifIndex + 1) {
-                kart.className = 'proje-kart next';
+                kart.classList.add('next');
+            } else {
+                kart.classList.add('hidden');
             }
         });
+
+        // Buton durumları
+        document.getElementById('prevBtn').disabled = (aktifIndex === 0);
+        document.getElementById('nextBtn').disabled = (aktifIndex === kartVerileri.length - 1);
     }
 
     function slide(yon) {
-        if (kartVerileri.length === 0) return;
-        
         let yeniIndex = aktifIndex + yon;
-        
-        // Sınır kontrolü
         if (yeniIndex >= 0 && yeniIndex < kartVerileri.length) {
             aktifIndex = yeniIndex;
             guncelle();
         }
     }
 
-    // Sayfa yüklenince başlat
-    window.addEventListener('DOMContentLoaded', projeleriYukle);
+    window.addEventListener('load', projeleriYukle);
 </script>
