@@ -9,34 +9,39 @@
         text-align: left; position: relative;
     }
 
-    [contenteditable="true"] { border: 1px dashed #c0392b; padding: 5px; border-radius: 4px; background-color: #fffcfc; }
+    [contenteditable="true"] { border: 1px dashed #c0392b; padding: 5px; border-radius: 4px; background-color: #fffcfc; outline: none; }
 
     .k-tarih { color: #bbb; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
     .k-baslik { color: #2c3e50; font-size: 1.2rem; margin: 10px 0; font-weight: bold; }
-    .k-metin { color: #555; font-size: 0.95rem; line-height: 1.5; }
-    .k-img { width: 100%; border-radius: 8px; margin-top: 15px; display: block; }
+    .k-metin { color: #555; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+    .k-img { width: 100%; border-radius: 8px; margin-top: 15px; display: block; object-fit: cover; }
 
-    .nav-bar { display: flex; justify-content: space-between; align-items: center; }
-    .nav-btn { background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; }
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .nav-btn { background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
     .nav-btn:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
 
     /* Admin Paneli & Yeni Butonlar */
-    .admin-controls { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .save-btn { background: #27ae60 !important; font-weight: bold; }
-    .delete-btn { background: #c0392b !important; margin-top: 10px; font-size: 0.8rem; }
+    .admin-controls { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1; margin: 0 10px; }
+    .save-btn { background: #27ae60 !important; font-weight: bold; width: 100%; }
+    .delete-btn { background: #c0392b !important; margin-top: 15px; font-size: 0.8rem; width: 100%; }
     .new-btn { background: #2980b9 !important; margin-bottom: 20px; width: 100%; }
-    
-    #admin-form { display: none; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
-    .admin-input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
-    
-    .loading-overlay { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:999; justify-content:center; align-items:center; }
+
+    #admin-form { display: none; margin-top: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+    .admin-input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+
+    .loading-overlay { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction: column; font-weight: bold; color: #c0392b; }
 </style>
 
-<div id="loader" class="loading-overlay">İşlem yapılıyor...</div>
+<div id="loader" class="loading-overlay">
+    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #c0392b; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;"></div>
+    YAYINLANIYOR...
+</div>
+
+<style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
 
 <div class="dragon-container">
     <div class="logo-area">
-        <img src="images/dragon-logo.png" alt="Dragon Logo">
+        <img src="images/dragon-logo.png" alt="Dragon Logo" onerror="this.src='https://via.placeholder.com/80'">
         <h2 style="margin:0; color:#2c3e50;">Dragon Helmet</h2>
         <div style="width:30px; height:2px; background:#c0392b; margin:10px auto;"></div>
     </div>
@@ -52,15 +57,15 @@
     <div class="nav-bar">
         <button class="nav-btn" id="btnGeri" onclick="projeDegistir(-1)">❮</button>
         <div class="admin-controls" id="admin-actions" style="display:none;">
-            <button class="nav-btn save-btn" onclick="githubKaydet()">YAYINLA / KAYDET</button>
+            <button class="nav-btn save-btn" onclick="githubKaydet()">YAYINLA</button>
         </div>
         <button class="nav-btn" id="btnIleri" onclick="projeDegistir(1)">❯</button>
     </div>
 
     <div class="admin-giris-alani" style="margin-top:30px;">
-        <small id="admin-toggle" style="color: #eee; cursor: pointer;" onclick="document.getElementById('admin-form').style.display='block'">Yönetim</small>
+        <small id="admin-toggle" style="color: #f0f0f0; cursor: pointer; user-select: none;" onclick="document.getElementById('admin-form').style.display='block'">Yönetim</small>
         <div id="admin-form">
-            <input type="password" id="adminToken" class="admin-input" placeholder="GitHub Token Giriniz">
+            <input type="password" id="adminToken" class="admin-input" placeholder="GitHub Token">
             <button class="nav-btn" style="width:100%" onclick="adminModunuAc()">Giriş Yap</button>
         </div>
     </div>
@@ -71,14 +76,18 @@
     let dAktifIdx = 0;
     let isAdmin = false;
     let ghToken = "";
+    const REPO = "talhacelikozgen/DragonWeb";
 
     async function dVeriYukle() {
         try {
             const res = await fetch('data/projeler.json?t=' + Date.now());
             dProjeler = await res.json();
-            dProjeler.reverse(); // En yeni en üstte
+            // JSON zaten eskiyse reverse yapıyoruz
             dGoster();
-        } catch (err) { console.error("Yükleme hatası"); }
+        } catch (err) { 
+            console.error("Yükleme hatası");
+            document.getElementById('proje-yukleme-alani').innerHTML = "Veri bulunamadı.";
+        }
     }
 
     function dGoster() {
@@ -87,7 +96,10 @@
         if(!p) return;
 
         const editable = isAdmin ? 'contenteditable="true"' : '';
-        let imgHtml = p.gorsel ? `<img src="${p.gorsel.startsWith('images/') ? p.gorsel : 'images/'+p.gorsel}" class="k-img">` : '<p style="color:#ccc; font-size:0.8rem;">Görsel yok</p>';
+        
+        // Resim yolunu temizle (eğer veritabanında images/ ile başlıyorsa temizle, sonra biz ekleyelim)
+        let temizGorsel = p.gorsel ? p.gorsel.replace('images/', '') : '';
+        let imgHtml = temizGorsel ? `<img src="images/${temizGorsel}" class="k-img" onerror="this.style.display='none'">` : '<p style="color:#ccc; font-size:0.8rem; margin-top:15px;">Görsel yok</p>';
 
         alan.innerHTML = `
             <div class="proje-kart">
@@ -97,7 +109,8 @@
                 <div id="img-container">${imgHtml}</div>
                 ${isAdmin ? `
                     <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                        <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem;">
+                        <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Görsel Yükle (PNG/JPG):</label>
+                        <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem; width:100%;">
                         <button class="nav-btn delete-btn" onclick="projeSil()">Bu Projeyi Sil</button>
                     </div>
                 ` : ''}
@@ -107,11 +120,16 @@
         document.getElementById('btnIleri').disabled = (dAktifIdx === dProjeler.length - 1);
     }
 
-    function projeDegistir(yon) { dAktifIdx += yon; dGoster(); }
+    function projeDegistir(yon) { 
+        if(dAktifIdx + yon >= 0 && dAktifIdx + yon < dProjeler.length) {
+            dAktifIdx += yon; 
+            dGoster(); 
+        }
+    }
 
     function adminModunuAc() {
         ghToken = document.getElementById('adminToken').value;
-        if(ghToken.length < 10) return alert("Geçersiz Token");
+        if(ghToken.length < 10) return alert("Hatalı Token!");
         isAdmin = true;
         document.getElementById('admin-form').style.display = 'none';
         document.getElementById('admin-actions').style.display = 'block';
@@ -120,76 +138,96 @@
     }
 
     function yeniProjeEkle() {
-        const yeni = { id: Date.now(), tarih: "Yeni Tarih", baslik: "Yeni Başlık", metin: "Açıklama yazın...", gorsel: "" };
-        dProjeler.unshift(yeni); // Başa ekle
+        const simdi = new Date();
+        const tarihStr = `${simdi.getDate()} Nisan ${simdi.getFullYear()}`;
+        const yeni = { 
+            id: Date.now(), 
+            tarih: tarihStr, 
+            baslik: "Yeni Başlık", 
+            metin: "İçeriği buraya yazın...", 
+            gorsel: "" 
+        };
+        dProjeler.unshift(yeni); // En başa ekle
         dAktifIdx = 0;
         dGoster();
     }
 
     function projeSil() {
-        if(!confirm("Bu projeyi silmek istediğine emin misin?")) return;
+        if(!confirm("Bu proje kalıcı olarak silinecek. Onaylıyor musunuz?")) return;
         dProjeler.splice(dAktifIdx, 1);
         dAktifIdx = 0;
-        dGoster();
+        if(dProjeler.length === 0) {
+            yeniProjeEkle();
+        } else {
+            dGoster();
+        }
     }
 
     async function githubKaydet() {
-        document.getElementById('loader').style.display = "flex";
-        
-        // Mevcut karttaki değişiklikleri diziye işle
-        const p = dProjeler[dAktifIdx];
-        p.tarih = document.getElementById('ed-tarih').innerText;
-        p.baslik = document.getElementById('ed-baslik').innerText;
-        p.metin = document.getElementById('ed-metin').innerText;
+        const loader = document.getElementById('loader');
+        loader.style.display = "flex";
 
-        // Görsel Yükleme İşlemi
-        const fileInput = document.getElementById('file-input');
-        if(fileInput && fileInput.files[0]) {
-            const file = fileInput.files[0];
-            const simdi = new Date();
-            const dosyaAdi = `${simdi.getDate()}-${simdi.getMonth()+1}-${simdi.getFullYear()}-${simdi.getHours()}${simdi.getMinutes()}.png`;
-            
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            await new Promise(res => reader.onload = res);
-            const base64Content = reader.result.split(',')[1];
-
-            // Görseli images/ klasörüne yükle
-            await fetch(`https://api.github.com/repos/KullaniciAdin/RepoAdin/contents/images/${dosyaAdi}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: "Resim yukle", content: base64Content })
-            });
-            p.gorsel = dosyaAdi;
-        }
-
-        // JSON Dosyasını Güncelle
         try {
-            const path = "data/projeler.json";
-            const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/${path}`;
+            const p = dProjeler[dAktifIdx];
+            p.tarih = document.getElementById('ed-tarih').innerText.trim();
+            p.baslik = document.getElementById('ed-baslik').innerText.trim();
+            p.metin = document.getElementById('ed-metin').innerText.trim();
+
+            const fileInput = document.getElementById('file-input');
             
-            const getFile = await fetch(url, { headers: { 'Authorization': `token ${ghToken}` } });
+            // 1. GÖRSEL YÜKLEME (Varsa)
+            if(fileInput && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const simdi = new Date();
+                // Saat-Gün-Ay-Yıl formatı: 1630-17-4-2026.png
+                const dosyaAdi = `${simdi.getHours()}${simdi.getMinutes()}-${simdi.getDate()}-${simdi.getMonth()+1}-${simdi.getFullYear()}.png`;
+                
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                await new Promise(res => reader.onload = res);
+                const base64Content = reader.result.split(',')[1];
+
+                const imgUrl = `https://api.github.com/repos/${REPO}/contents/images/${dosyaAdi}`;
+                
+                await fetch(imgUrl, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "Resim: " + dosyaAdi, content: base64Content })
+                });
+                p.gorsel = dosyaAdi; // Sadece dosya adını kaydet
+            }
+
+            // 2. JSON GÜNCELLEME
+            const jsonPath = "data/projeler.json";
+            const jsonUrl = `https://api.github.com/repos/${REPO}/contents/${jsonPath}`;
+            
+            const getFile = await fetch(jsonUrl, { headers: { 'Authorization': `token ${ghToken}` } });
             const fileData = await getFile.json();
             
-            // Veriyi geri çeviriyoruz (çünkü başta reverse yapmıştık, dosyaya orijinal sırada gitmeli)
+            // Dosyaya kaydederken orijinal sıraya çevir (reverse geri al)
             const kaydedilecekDizi = [...dProjeler].reverse();
 
-            const putRes = await fetch(url, {
+            const putRes = await fetch(jsonUrl, {
                 method: 'PUT',
                 headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: "Proje guncelleme",
+                    message: "Proje Güncelleme",
                     content: btoa(unescape(encodeURIComponent(JSON.stringify(kaydedilecekDizi, null, 4)))),
                     sha: fileData.sha
                 })
             });
 
-            if(putRes.ok) alert("BAŞARIYLA YAYINLANDI!");
-            else alert("Hata oluştu.");
-        } catch (e) { alert("Sistem hatası: " + e); }
-        
-        document.getElementById('loader').style.display = "none";
-        dGoster();
+            if(putRes.ok) {
+                alert("Yayınlandı! Değişikliklerin görünmesi 1-2 dakika sürebilir.");
+            } else {
+                throw new Error("GitHub kayıt hatası.");
+            }
+        } catch (e) { 
+            alert("Hata: " + e.message); 
+        } finally {
+            loader.style.display = "none";
+            dGoster();
+        }
     }
 
     dVeriYukle();
