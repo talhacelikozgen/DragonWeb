@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "tarih": "18 Nisan 2026",
+        "baslik": "Ejderha Miğferi Tasarımı",
+        "metin": "Projemizin ikonik parçası olan miğferin ilk 3D modellemeleri bitti. Doku çalışmalarında antik metal ve ejderha pulu efektleri üzerine yoğunlaştık. Optimizasyon süreci devam ediyor.",
+        "gorsel": "dragon-logo.png"
+    },
+    {
+        "id": 2,
+        "tarih": "20 Nisan 2026",
+        "baslik": "Oyun Motoru Geçişi",
+        "metin": "Daha iyi ışıklandırma ve performans için yeni nesil render motoruna geçiş yaptık. Shader güncellemeleri sayesinde atmosfer artık çok daha karanlık ve etkileyici.",
+        "gorsel": ""
+    },
+    {
+        "id": 3,
+        "tarih": "22 Nisan 2026",
+        "baslik": "Mekanik Testler",
+        "metin": "Karakterin hareket kabiliyetleri ve çevreyle olan etkileşimi test ediliyor. Yakın dövüş sistemi üzerinde iyileştirmeler yapıldı.",
+        "gorsel": "B000.png"
+    }
+]
