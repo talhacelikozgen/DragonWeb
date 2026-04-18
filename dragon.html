@@ -83,9 +83,7 @@
         <button class="nav-btn-ok" id="btnIleri" onclick="projeDegistir(1)">❯</button>
     </div>
 
-    <div class="kart-cerceve" id="proje-yukleme-alani">
-        <p style="color:#ccc;">Yükleniyor...</p>
-    </div>
+    <div id="proje-yukleme-alani"></div>
 
     <div id="admin-actions" style="display:none; margin-top: 10px;">
         <button class="nav-btn-ok save-btn" onclick="githubKaydet()">YAYINLA</button>
@@ -130,8 +128,12 @@ window.dVeriYukle = async function() {
 };
 
 window.dGoster = function() {
-    const alan = document.getElementById('proje-yukleme-alani');
-    if (!alan) return;
+    let alan = document.getElementById('proje-yukleme-alani');
+    if (!alan) {
+        alan = document.createElement('div');
+        alan.id = 'proje-yukleme-alani';
+        document.querySelector('.dragon-container')?.appendChild(alan);
+    }
 
     if (!window.dProjeler || window.dProjeler.length === 0) {
         alan.innerHTML = '<p style="color:#ccc; padding:20px;">Proje yok.</p>';
