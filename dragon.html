@@ -102,11 +102,13 @@
     async function dVeriYukle() {
         try {
             const res = await fetch('data/projeler.json?t=' + Date.now());
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
+            if (!Array.isArray(data)) throw new Error("Veri format hatası");
             dProjeler = data.reverse(); 
             dGoster();
         } catch (err) { 
-            document.getElementById('proje-yukleme-alani').innerHTML = "Veri alınamadı.";
+            document.getElementById('proje-yukleme-alani').innerHTML = `<p style='color:#c0392b;'>Veri yüklenemedi: ${err.message}</p>`;
         }
     }
 
