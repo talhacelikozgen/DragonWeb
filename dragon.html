@@ -93,130 +93,153 @@
 </div>
 
 <script>
-    let dProjeler = [];
-    let dAktifIdx = 0;
-    let isAdmin = false;
-    let ghToken = "";
-    const REPO = "talhacelikozgen/DragonWeb";
+const REPO = "talhacelikozgen/DragonWeb";
+let dProjeler = [];
+let dAktifIdx = 0;
+let isAdmin = false;
+let ghToken = "";
 
-    async function dVeriYukle() {
-        try {
-            const res = await fetch('data/projeler.json?t=' + Date.now());
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            if (!Array.isArray(data)) throw new Error("Veri format hatası");
-            dProjeler = data.reverse(); 
-            dGoster();
-        } catch (err) { 
-            document.getElementById('proje-yukleme-alani').innerHTML = `<p style='color:#c0392b;'>Veri yüklenemedi: ${err.message}</p>`;
-        }
-    }
+// Global window objesine bağla
+window.adminModunuAc = function(token) {
+    ghToken = token;
+    isAdmin = true;
+    const adminActionsEl = document.getElementById('admin-actions');
+    const adminExtraEl = document.getElementById('admin-extra');
+    if (adminActionsEl) adminActionsEl.style.display = 'block';
+    if (adminExtraEl) adminExtraEl.style.display = 'block';
+    dGoster();
+};
 
-    function dGoster() {
+async function dVeriYukle() {
+    try {
+        const res = await fetch('data/projeler.json?t=' + Date.now());
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Veri format hatası");
+        dProjeler = [...data].reverse();
+        dGoster();
+    } catch (err) {
         const alan = document.getElementById('proje-yukleme-alani');
-        if (dProjeler.length === 0) {
-            alan.innerHTML = "<p style='color:#ccc;'>Görüntülenecek proje yok.</p>";
-            return;
+        if (alan) {
+            alan.innerHTML = `<p style='color:#c0392b; padding:20px;'>Veri yüklenemedi: ${err.message}</p>`;
         }
-        
+    }
+}
+
+function dGoster() {
+    const alan = document.getElementById('proje-yukleme-alani');
+    if (!alan) return;
+    
+    if (dProjeler.length === 0) {
+        alan.innerHTML = "<p style='color:#ccc; padding:20px;'>Proje yok.</p>";
+        return;
+    }
+    
+    const p = dProjeler[dAktifIdx];
+    const editable = isAdmin ? 'contenteditable="true"' : '';
+    const gorselPath = p.gorsel ? (p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel) : '';
+    const imgHtml = gorselPath ? `<img src="${gorselPath}" class="k-img" onerror="this.style.display='none'">` : '';
+
+    alan.innerHTML = `
+        <div class="proje-kart">
+            <div class="k-tarih" ${editable} id="ed-tarih">${p.tarih}</div>
+            <div class="k-baslik" ${editable} id="ed-baslik">${p.baslik}</div>
+            <div class="k-metin" ${editable} id="ed-metin">${p.metin}</div>
+            <div id="img-container">${imgHtml}</div>
+            ${isAdmin ? `
+                <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                    <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem; width:100%;">
+                    <button class="nav-btn-ok delete-btn" onclick="window.projeSil()">Bu Projeyi Sil</button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    const btnGeri = document.getElementById('btnGeri');
+    const btnIleri = document.getElementById('btnIleri');
+    if (btnGeri) btnGeri.disabled = (dAktifIdx === 0);
+    if (btnIleri) btnIleri.disabled = (dAktifIdx === dProjeler.length - 1);
+}
+
+window.projeDegistir = function(yon) {
+    if(dAktifIdx + yon >= 0 && dAktifIdx + yon < dProjeler.length) {
+        dAktifIdx += yon;
+        dGoster();
+    }
+};
+
+window.yeniProjeEkle = function() {
+    const simdi = new Date();
+    const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    const tarihStr = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
+    dProjeler.unshift({ id: Date.now(), tarih: tarihStr, baslik: "Yeni Başlık", metin: "İçerik...", gorsel: "" });
+    dAktifIdx = 0;
+    dGoster();
+};
+
+window.projeSil = function() {
+    if(!confirm("Silinsin mi?")) return;
+    dProjeler.splice(dAktifIdx, 1);
+    dAktifIdx = 0;
+    dGoster();
+};
+
+window.githubKaydet = async function() {
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.display = "flex";
+    try {
         const p = dProjeler[dAktifIdx];
-        const editable = isAdmin ? 'contenteditable="true"' : '';
-        let temizGorsel = p.gorsel ? p.gorsel.replace('images/', '') : '';
-        let imgHtml = temizGorsel ? `<img src="images/${temizGorsel}" class="k-img" onerror="this.style.display='none'">` : '';
+        const edTarih = document.getElementById('ed-tarih');
+        const edBaslik = document.getElementById('ed-baslik');
+        const edMetin = document.getElementById('ed-metin');
+        
+        if (edTarih) p.tarih = edTarih.innerText.trim();
+        if (edBaslik) p.baslik = edBaslik.innerText.trim();
+        if (edMetin) p.metin = edMetin.innerText.trim();
 
-        alan.innerHTML = `
-            <div class="proje-kart">
-                <div class="k-tarih" ${editable} id="ed-tarih">${p.tarih}</div>
-                <div class="k-baslik" ${editable} id="ed-baslik">${p.baslik}</div>
-                <div class="k-metin" ${editable} id="ed-metin">${p.metin}</div>
-                <div id="img-container">${imgHtml}</div>
-                ${isAdmin ? `
-                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                        <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem; width:100%;">
-                        <button class="nav-btn-ok delete-btn" onclick="projeSil()">Bu Projeyi Sil</button>
-                    </div>
-                ` : ''}
-            </div>
-        `;
-        document.getElementById('btnGeri').disabled = (dAktifIdx === 0);
-        document.getElementById('btnIleri').disabled = (dAktifIdx === dProjeler.length - 1);
-    }
-
-    function projeDegistir(yon) { 
-        if(dAktifIdx + yon >= 0 && dAktifIdx + yon < dProjeler.length) {
-            dAktifIdx += yon; 
-            dGoster(); 
-        }
-    }
-
-    // Bu fonksiyon index.html'den gelen tetikleme ile çalışacak
-    function adminModunuAc(token) {
-        ghToken = token;
-        isAdmin = true;
-        document.getElementById('admin-actions').style.display = 'block';
-        document.getElementById('admin-extra').style.display = 'block';
-        dGoster();
-    }
-
-    function yeniProjeEkle() {
-        const simdi = new Date();
-        const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-        const tarihStr = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
-        dProjeler.unshift({ id: Date.now(), tarih: tarihStr, baslik: "Yeni Başlık", metin: "İçerik...", gorsel: "" }); 
-        dAktifIdx = 0;
-        dGoster();
-    }
-
-    function projeSil() {
-        if(!confirm("Silinsin mi?")) return;
-        dProjeler.splice(dAktifIdx, 1);
-        dAktifIdx = 0;
-        dGoster();
-    }
-
-    async function githubKaydet() {
-        const loader = document.getElementById('loader');
-        loader.style.display = "flex";
-        try {
-            const p = dProjeler[dAktifIdx];
-            p.tarih = document.getElementById('ed-tarih').innerText.trim();
-            p.baslik = document.getElementById('ed-baslik').innerText.trim();
-            p.metin = document.getElementById('ed-metin').innerText.trim();
-
-            const fileInput = document.getElementById('file-input');
-            if(fileInput && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
+        const fileInput = document.getElementById('file-input');
+        if(fileInput && fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            await new Promise((resolve) => {
+                reader.onload = () => resolve();
                 reader.readAsDataURL(file);
-                await new Promise(res => reader.onload = res);
-                const base64Content = reader.result.split(',')[1];
-                const dosyaAdi = `img-${Date.now()}.png`;
-                await fetch(`https://api.github.com/repos/${REPO}/contents/images/${dosyaAdi}`, {
-                    method: 'PUT',
-                    headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "Upload img", content: base64Content })
-                });
-                p.gorsel = dosyaAdi;
-            }
-
-            const jsonUrl = `https://api.github.com/repos/${REPO}/contents/data/projeler.json`;
-            const getFile = await fetch(jsonUrl, { headers: { 'Authorization': `token ${ghToken}` } });
-            const fileData = await getFile.json();
-            
-            await fetch(jsonUrl, {
+            });
+            const base64Content = reader.result.split(',')[1];
+            const dosyaAdi = `img-${Date.now()}.png`;
+            const imgRes = await fetch(`https://api.github.com/repos/${REPO}/contents/images/${dosyaAdi}`, {
                 method: 'PUT',
                 headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: "Update",
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify([...dProjeler].reverse(), null, 4)))),
-                    sha: fileData.sha
-                })
+                body: JSON.stringify({ message: "Upload img", content: base64Content })
             });
-            alert("Yayınlandı!");
-        } catch (e) { alert("Hata!"); }
-        loader.style.display = "none";
-        dGoster();
-    }
+            if (imgRes.ok) p.gorsel = dosyaAdi;
+        }
 
-    dVeriYukle();
+        const jsonUrl = `https://api.github.com/repos/${REPO}/contents/data/projeler.json`;
+        const getFile = await fetch(jsonUrl, { headers: { 'Authorization': `token ${ghToken}` } });
+        const fileData = await getFile.json();
+        
+        const updateRes = await fetch(jsonUrl, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: "Update",
+                content: btoa(unescape(encodeURIComponent(JSON.stringify([...dProjeler].reverse(), null, 4)))),
+                sha: fileData.sha
+            })
+        });
+        if (updateRes.ok) {
+            alert("Yayınlandı!");
+        } else {
+            alert("Hata!");
+        }
+    } catch (e) { 
+        alert("Hata: " + e.message);
+    }
+    if (loader) loader.style.display = "none";
+    dGoster();
+};
+
+// Sayfa yüklendiğinde veri çek
+dVeriYukle();
 </script>

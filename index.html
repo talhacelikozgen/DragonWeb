@@ -34,7 +34,7 @@
     <script>
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 
-        let activeToken = ""; // Token'ı burada saklıyoruz
+        window.activeToken = "";
 
         async function loadPage(page, btn) {
             const container = document.getElementById('content-area');
@@ -43,6 +43,7 @@
 
             try {
                 const response = await fetch(page);
+                if (!response.ok) throw new Error('Sayfa yüklenemedi');
                 const html = await response.text();
                 container.innerHTML = html;
 
@@ -54,28 +55,28 @@
                     oldScript.parentNode.replaceChild(newScript, oldScript);
                 });
 
-                // EĞER dragon.html veya dinim.html yüklendiyse ve zaten giriş yapılmışsa modu aç
-                if((page === 'dragon.html' || page === 'dinim.html') && activeToken !== "") {
-                    setTimeout(() => {
-                        if(typeof adminModunuAc === "function") {
-                            adminModunuAc(activeToken);
+                setTimeout(() => {
+                    if((page === 'dragon.html' || page === 'dinim.html') && window.activeToken !== "") {
+                        if(typeof window.adminModunuAc === "function") {
+                            window.adminModunuAc(window.activeToken);
                         }
-                    }, 100);
-                }
+                    }
+                }, 300);
 
-            } catch (err) { container.innerHTML = "Sayfa yüklenemedi."; }
+            } catch (err) { 
+                container.innerHTML = `<p style="color:#c0392b; padding:20px;">Sayfa yüklenemedi: ${err.message}</p>`;
+            }
         }
 
         function anaGirisYap() {
             const tk = document.getElementById('adminToken').value;
             if(tk.length < 10) return alert("Hatalı Token!");
-            activeToken = tk;
+            window.activeToken = tk;
             document.getElementById('admin-form').style.display = 'none';
             alert("Yönetici girişi aktif.");
             
-            // Eğer şu an dragon sayfasındaysak hemen yetkiyi ver
-            if(typeof adminModunuAc === "function") {
-                adminModunuAc(activeToken);
+            if(typeof window.adminModunuAc === "function") {
+                window.adminModunuAc(window.activeToken);
             }
         }
 
