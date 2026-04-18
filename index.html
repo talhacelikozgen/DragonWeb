@@ -54,8 +54,8 @@
                     oldScript.parentNode.replaceChild(newScript, oldScript);
                 });
 
-                // EĞER dragon.html yüklendiyse ve zaten giriş yapılmışsa modu aç
-                if(page === 'dragon.html' && activeToken !== "") {
+                // EĞER dragon.html veya dinim.html yüklendiyse ve zaten giriş yapılmışsa modu aç
+                if((page === 'dragon.html' || page === 'dinim.html') && activeToken !== "") {
                     setTimeout(() => {
                         if(typeof adminModunuAc === "function") {
                             adminModunuAc(activeToken);

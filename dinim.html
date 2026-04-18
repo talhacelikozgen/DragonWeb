@@ -105,7 +105,7 @@
     <div id="admin-panel">
         <input type="password" id="token" class="admin-input" placeholder="Token"> <br>
         <input type="text" id="yeni-tarih" class="admin-input" placeholder="04-16"> <br>
-        <textarea id="yeni-metin" class="admin-input" rows="2" placeholder="Nasihat metni..."></textarea> <br>
+        <input type="text" id="yeni-soz" class="admin-input" placeholder="Yeni Söz"> <br>
         <button onclick="yayinla()" style="padding:10px 20px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">YAYINLA</button>
         <p id="durum" style="font-size: 0.85rem; margin-top: 8px; font-weight: bold;"></p>
     </div>
@@ -114,12 +114,18 @@
 <script>
     var bugunkuSozler = [];
     var aktifIndex = 0;
+    let isAdmin = false;
+    let ghToken = "";
+    const REPO = "talhacelikozgen/DragonWeb";
+
     function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
 
     async function veriyiYukle() {
         const simdi = new Date();
-        document.getElementById('gercek-tarih').innerText = simdi.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('gun-adi').innerText = simdi.toLocaleDateString('tr-TR', { weekday: 'long' });
+        const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+        const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        document.getElementById('gercek-tarih').innerText = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
+        document.getElementById('gun-adi').innerText = gunler[simdi.getDay()].toUpperCase();
         try {
             const response = await fetch('data/arsiv.json?t=' + Date.now());
             const veriler = await response.json();
@@ -142,17 +148,23 @@
 
     function degistir(yon) { aktifIndex += yon; goster(); }
 
+    // Admin modu açma fonksiyonu
+    function adminModunuAc(token) {
+        ghToken = token;
+        isAdmin = true;
+        document.getElementById('admin-panel').style.display = 'block';
+    }
+
     async function yayinla() {
-        const token = document.getElementById('token').value;
+        const token = ghToken || document.getElementById('token').value;
         const tarih = document.getElementById('yeni-tarih').value;
-        const metin = document.getElementById('yeni-metin').value;
+        const metin = document.getElementById('yeni-soz').value;
         const durum = document.getElementById('durum');
-        if(!token || !tarih || !metin) return;
+        if(!token || !tarih || !metin) return alert("Token, tarih ve söz gerekli!");
         durum.innerText = "Yükleniyor...";
         
-        const url = `https://api.github.com/repos/talhacelikozgen/DragonWeb/contents/data/arsiv.json`;
-        
         try {
+            const url = `https://api.github.com/repos/${REPO}/contents/data/arsiv.json`;
             const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
             const fileData = await res.json();
             let decoded = decodeURIComponent(atob(fileData.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
@@ -166,6 +178,11 @@
                 body: JSON.stringify({ message: `${tarih} eklendi`, content: base64, sha: fileData.sha })
             });
             durum.innerText = update.ok ? "Başarılı!" : "Hata!";
+            if (update.ok) {
+                document.getElementById('yeni-tarih').value = '';
+                document.getElementById('yeni-soz').value = '';
+                veriyiYukle();
+            }
         } catch (e) { durum.innerText = "Hata!"; }
     }
     veriyiYukle();
