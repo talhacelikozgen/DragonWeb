@@ -1,125 +1,94 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Helmet - Projeler</title>
-    <style>
-        /* FLEXBOX YAPISI - FOOTER'I EN ALTA İTMEK İÇİN */
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
+<style>
+    /* ANA KONTEYNER */
+    .dragon-container {
+        font-family: 'Georgia', serif;
+        text-align: center;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 10px;
+    }
 
-        body {
-            font-family: 'Georgia', serif;
-            background: #f4f7f6;
-            display: flex;
-            flex-direction: column;
-        }
+    .logo-area img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #f0f0f0; margin-bottom: 10px; }
 
-        /* ANA İÇERİK ALANI */
-        .main-content {
-            flex: 1 0 auto;
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 15px;
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-        }
+    /* OKLAR VE NAVİGASYON (YUKARI TAŞINDI) */
+    .nav-bar-ust {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
 
-        .logo-area img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #f0f0f0; margin-bottom: 10px; }
+    .nav-btn-ok {
+        background: #34495e;
+        color: white;
+        border: none;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1rem;
+    }
 
-        .kart-cerceve { min-height: 300px; display: flex; align-items: center; justify-content: center; margin: 20px 0; }
-        .proje-kart {
-            background: white; width: 100%; padding: 20px; border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 4px solid #c0392b;
-            text-align: left; position: relative;
-        }
+    .nav-btn-ok:hover { background: #c0392b; }
+    .nav-btn-ok:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
 
-        [contenteditable="true"] { border: 1px dashed #c0392b; padding: 5px; border-radius: 4px; background-color: #fffcfc; outline: none; }
+    /* KART YAPISI */
+    .kart-cerceve { min-height: 300px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .proje-kart {
+        background: white; width: 100%; padding: 20px; border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-top: 4px solid #c0392b;
+        text-align: left; position: relative;
+    }
 
-        .k-tarih { color: #bbb; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .k-baslik { color: #2c3e50; font-size: 1.2rem; margin: 10px 0; font-weight: bold; }
-        .k-metin { color: #555; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
-        .k-img { width: 100%; border-radius: 8px; margin-top: 15px; display: block; object-fit: cover; }
+    [contenteditable="true"] { border: 1px dashed #c0392b; padding: 5px; border-radius: 4px; background-color: #fffcfc; outline: none; }
 
-        .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .nav-btn { background: #34495e; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-        .nav-btn:disabled { background: #eee; color: #ccc; cursor: not-allowed; }
+    .k-tarih { color: #bbb; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+    .k-baslik { color: #2c3e50; font-size: 1.2rem; margin: 10px 0; font-weight: bold; }
+    .k-metin { color: #555; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+    .k-img { width: 100%; border-radius: 8px; margin-top: 15px; display: block; object-fit: cover; }
 
-        /* YÖNETİM FOOTER ALANI */
-        .admin-footer {
-            background: #f4f4f4;
-            padding: 25px 0;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            width: 100%;
-            flex-shrink: 0;
-        }
+    /* YÖNETİM BUTONLARI */
+    .save-btn { background: #27ae60 !important; font-weight: bold; width: 100%; margin-top: 10px; }
+    .new-btn { background: #2980b9 !important; margin: 0; }
+    .delete-btn { background: #c0392b !important; margin-top: 15px; font-size: 0.8rem; width: 100%; }
 
-        #admin-form { 
-            display: none; 
-            max-width: 300px; 
-            margin: 15px auto 0; 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-        }
-
-        .admin-input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
-
-        .admin-controls { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1; margin: 0 10px; }
-        .save-btn { background: #27ae60 !important; font-weight: bold; width: 100%; }
-        .delete-btn { background: #c0392b !important; margin-top: 15px; font-size: 0.8rem; width: 100%; }
-        .new-btn { background: #2980b9 !important; margin-bottom: 20px; width: 100%; }
-
-        .loading-overlay { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction: column; font-weight: bold; color: #c0392b; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
+    .loading-overlay { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction: column; font-weight: bold; color: #c0392b; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
 
 <div id="loader" class="loading-overlay">
     <div style="border: 4px solid #f3f3f3; border-top: 4px solid #c0392b; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;"></div>
     YAYINLANIYOR...
 </div>
 
-<div class="main-content">
+<div class="dragon-container">
     <div class="logo-area">
         <img src="images/dragon-logo.png" alt="Dragon Logo" onerror="this.src='https://via.placeholder.com/80'">
         <h2 style="margin:0; color:#2c3e50;">Dragon Helmet</h2>
         <div style="width:30px; height:2px; background:#c0392b; margin:10px auto;"></div>
     </div>
 
-    <div id="admin-extra" style="display:none;">
-        <button class="nav-btn new-btn" onclick="yeniProjeEkle()">+ Yeni Proje Ekle</button>
+    <div class="nav-bar-ust">
+        <button class="nav-btn-ok" id="btnGeri" onclick="projeDegistir(-1)">❮</button>
+        
+        <div id="admin-extra" style="display:none;">
+            <button class="nav-btn-ok new-btn" onclick="yeniProjeEkle()">+</button>
+        </div>
+
+        <button class="nav-btn-ok" id="btnIleri" onclick="projeDegistir(1)">❯</button>
     </div>
 
     <div class="kart-cerceve" id="proje-yukleme-alani">
         <p style="color:#ccc;">Yükleniyor...</p>
     </div>
 
-    <div class="nav-bar">
-        <button class="nav-btn" id="btnGeri" onclick="projeDegistir(-1)">❮</button>
-        <div class="admin-controls" id="admin-actions" style="display:none;">
-            <button class="nav-btn save-btn" onclick="githubKaydet()">YAYINLA</button>
-        </div>
-        <button class="nav-btn" id="btnIleri" onclick="projeDegistir(1)">❯</button>
-    </div>
-</div>
-
-<div class="admin-footer">
-    <small id="admin-toggle" style="color: #bbb; cursor: pointer; user-select: none;" 
-           onclick="document.getElementById('admin-form').style.display='block'">
-        Yönetim
-    </small>
-    
-    <div id="admin-form">
-        <input type="password" id="adminToken" class="admin-input" placeholder="Token">
-        <button class="nav-btn" style="width:100%; background:#2c3e50;" onclick="adminModunuAc()">Giriş Yap</button>
+    <div id="admin-actions" style="display:none; margin-top: 10px;">
+        <button class="nav-btn-ok save-btn" onclick="githubKaydet()">YAYINLA</button>
     </div>
 </div>
 
@@ -128,18 +97,16 @@
     let dAktifIdx = 0;
     let isAdmin = false;
     let ghToken = "";
-    const REPO = "talhacelikozgen/DragonWeb"; // Repo yolun doğru olduğundan emin ol
+    const REPO = "talhacelikozgen/DragonWeb";
 
     async function dVeriYukle() {
         try {
             const res = await fetch('data/projeler.json?t=' + Date.now());
             const data = await res.json();
-            // Veriyi alırken ters çeviriyoruz ki son eklenen başta olsun
             dProjeler = data.reverse(); 
             dGoster();
         } catch (err) { 
-            console.error("Yükleme hatası");
-            document.getElementById('proje-yukleme-alani').innerHTML = "Veri bulunamadı. Lütfen projeler.json dosyasını kontrol edin.";
+            document.getElementById('proje-yukleme-alani').innerHTML = "Veri alınamadı.";
         }
     }
 
@@ -152,9 +119,8 @@
         
         const p = dProjeler[dAktifIdx];
         const editable = isAdmin ? 'contenteditable="true"' : '';
-        
         let temizGorsel = p.gorsel ? p.gorsel.replace('images/', '') : '';
-        let imgHtml = temizGorsel ? `<img src="images/${temizGorsel}" class="k-img" onerror="this.style.display='none'">` : '<p style="color:#ccc; font-size:0.8rem; margin-top:15px;">Görsel yok</p>';
+        let imgHtml = temizGorsel ? `<img src="images/${temizGorsel}" class="k-img" onerror="this.style.display='none'">` : '';
 
         alan.innerHTML = `
             <div class="proje-kart">
@@ -164,9 +130,8 @@
                 <div id="img-container">${imgHtml}</div>
                 ${isAdmin ? `
                     <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                        <label style="font-size:0.7rem; color:#666; display:block; margin-bottom:5px;">Görsel Yükle (PNG/JPG):</label>
                         <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem; width:100%;">
-                        <button class="nav-btn delete-btn" onclick="projeSil()">Bu Projeyi Sil</button>
+                        <button class="nav-btn-ok delete-btn" onclick="projeSil()">Bu Projeyi Sil</button>
                     </div>
                 ` : ''}
             </div>
@@ -182,11 +147,10 @@
         }
     }
 
-    function adminModunuAc() {
-        ghToken = document.getElementById('adminToken').value;
-        if(ghToken.length < 10) return alert("Hatalı Token!");
+    // Bu fonksiyon index.html'den gelen tetikleme ile çalışacak
+    function adminModunuAc(token) {
+        ghToken = token;
         isAdmin = true;
-        document.getElementById('admin-form').style.display = 'none';
         document.getElementById('admin-actions').style.display = 'block';
         document.getElementById('admin-extra').style.display = 'block';
         dGoster();
@@ -196,20 +160,13 @@
         const simdi = new Date();
         const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
         const tarihStr = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
-        const yeni = { 
-            id: Date.now(), 
-            tarih: tarihStr, 
-            baslik: "Yeni Proje Başlığı", 
-            metin: "Proje detaylarını buraya yazın...", 
-            gorsel: "" 
-        };
-        dProjeler.unshift(yeni); 
+        dProjeler.unshift({ id: Date.now(), tarih: tarihStr, baslik: "Yeni Başlık", metin: "İçerik...", gorsel: "" }); 
         dAktifIdx = 0;
         dGoster();
     }
 
     function projeSil() {
-        if(!confirm("Bu proje silinecek. Onaylıyor musunuz?")) return;
+        if(!confirm("Silinsin mi?")) return;
         dProjeler.splice(dAktifIdx, 1);
         dAktifIdx = 0;
         dGoster();
@@ -218,7 +175,6 @@
     async function githubKaydet() {
         const loader = document.getElementById('loader');
         loader.style.display = "flex";
-
         try {
             const p = dProjeler[dAktifIdx];
             p.tarih = document.getElementById('ed-tarih').innerText.trim();
@@ -226,57 +182,39 @@
             p.metin = document.getElementById('ed-metin').innerText.trim();
 
             const fileInput = document.getElementById('file-input');
-            
             if(fileInput && fileInput.files[0]) {
                 const file = fileInput.files[0];
-                const simdi = new Date();
-                const dosyaAdi = `${simdi.getHours()}${simdi.getMinutes()}-${simdi.getDate()}-${simdi.getMonth()+1}-${simdi.getFullYear()}.png`;
-                
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 await new Promise(res => reader.onload = res);
                 const base64Content = reader.result.split(',')[1];
-
-                const imgUrl = `https://api.github.com/repos/${REPO}/contents/images/${dosyaAdi}`;
-                await fetch(imgUrl, {
+                const dosyaAdi = `img-${Date.now()}.png`;
+                await fetch(`https://api.github.com/repos/${REPO}/contents/images/${dosyaAdi}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "Resim: " + dosyaAdi, content: base64Content })
+                    body: JSON.stringify({ message: "Upload img", content: base64Content })
                 });
                 p.gorsel = dosyaAdi;
             }
 
-            const jsonPath = "data/projeler.json";
-            const jsonUrl = `https://api.github.com/repos/${REPO}/contents/${jsonPath}`;
+            const jsonUrl = `https://api.github.com/repos/${REPO}/contents/data/projeler.json`;
             const getFile = await fetch(jsonUrl, { headers: { 'Authorization': `token ${ghToken}` } });
             const fileData = await getFile.json();
             
-            // Kaydederken diziyi tekrar orijinal haline çeviriyoruz
-            const kaydedilecekDizi = [...dProjeler].reverse();
-
-            const putRes = await fetch(jsonUrl, {
+            await fetch(jsonUrl, {
                 method: 'PUT',
                 headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: "Proje Güncelleme",
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(kaydedilecekDizi, null, 4)))),
+                    message: "Update",
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify([...dProjeler].reverse(), null, 4)))),
                     sha: fileData.sha
                 })
             });
-
-            if(putRes.ok) {
-                alert("Yayınlandı! Değişikliklerin görünmesi 1-2 dakika sürebilir.");
-            }
-        } catch (e) { 
-            alert("Hata: " + e.message); 
-        } finally {
-            loader.style.display = "none";
-            dGoster();
-        }
+            alert("Yayınlandı!");
+        } catch (e) { alert("Hata!"); }
+        loader.style.display = "none";
+        dGoster();
     }
 
     dVeriYukle();
 </script>
-
-</body>
-</html>
