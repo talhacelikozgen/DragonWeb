@@ -94,59 +94,66 @@
 
 <script>
 const REPO = "talhacelikozgen/DragonWeb";
-let dProjeler = [];
-let dAktifIdx = 0;
-let isAdmin = false;
-let ghToken = "";
+window.dProjeler = [];
+window.dAktifIdx = 0;
+window.isAdmin = false;
+window.ghToken = "";
 
-// Global window objesine bağla
 window.adminModunuAc = function(token) {
-    ghToken = token;
-    isAdmin = true;
+    window.ghToken = token;
+    window.isAdmin = true;
     const adminActionsEl = document.getElementById('admin-actions');
     const adminExtraEl = document.getElementById('admin-extra');
     if (adminActionsEl) adminActionsEl.style.display = 'block';
     if (adminExtraEl) adminExtraEl.style.display = 'block';
-    dGoster();
+    window.dGoster();
 };
 
-async function dVeriYukle() {
+window.dVeriYukle = async function() {
     try {
-        const res = await fetch('data/projeler.json?t=' + Date.now());
+        const url = new URL('data/projeler.json', window.location.href);
+        url.searchParams.set('t', Date.now());
+        const res = await fetch(url.href);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (!Array.isArray(data)) throw new Error("Veri format hatası");
-        dProjeler = [...data].reverse();
-        dGoster();
+        if (!Array.isArray(data)) throw new Error('Veri format hatası');
+        window.dProjeler = [...data].reverse();
+        window.dAktifIdx = 0;
+        window.dGoster();
     } catch (err) {
         const alan = document.getElementById('proje-yukleme-alani');
         if (alan) {
             alan.innerHTML = `<p style='color:#c0392b; padding:20px;'>Veri yüklenemedi: ${err.message}</p>`;
         }
+        console.error('Dragon verisi yüklenemedi:', err);
     }
-}
+};
 
-function dGoster() {
+window.dGoster = function() {
     const alan = document.getElementById('proje-yukleme-alani');
     if (!alan) return;
-    
-    if (dProjeler.length === 0) {
-        alan.innerHTML = "<p style='color:#ccc; padding:20px;'>Proje yok.</p>";
+
+    if (!window.dProjeler || window.dProjeler.length === 0) {
+        alan.innerHTML = '<p style="color:#ccc; padding:20px;">Proje yok.</p>';
+        const btnGeri = document.getElementById('btnGeri');
+        const btnIleri = document.getElementById('btnIleri');
+        if (btnGeri) btnGeri.disabled = true;
+        if (btnIleri) btnIleri.disabled = true;
         return;
     }
-    
-    const p = dProjeler[dAktifIdx];
-    const editable = isAdmin ? 'contenteditable="true"' : '';
-    const gorselPath = p.gorsel ? (p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel) : '';
-    const imgHtml = gorselPath ? `<img src="${gorselPath}" class="k-img" onerror="this.style.display='none'">` : '';
+
+    const p = window.dProjeler[window.dAktifIdx];
+    const editable = window.isAdmin ? 'contenteditable="true"' : '';
+    const gorsel = p.gorsel ? (p.gorsel.startsWith('images/') ? p.gorsel : 'images/' + p.gorsel) : '';
+    const imgHtml = gorsel ? `<img src="${gorsel}" class="k-img" onerror="this.style.display='none'">` : '';
 
     alan.innerHTML = `
         <div class="proje-kart">
-            <div class="k-tarih" ${editable} id="ed-tarih">${p.tarih}</div>
-            <div class="k-baslik" ${editable} id="ed-baslik">${p.baslik}</div>
-            <div class="k-metin" ${editable} id="ed-metin">${p.metin}</div>
+            <div class="k-tarih" ${editable} id="ed-tarih">${p.tarih || ''}</div>
+            <div class="k-baslik" ${editable} id="ed-baslik">${p.baslik || ''}</div>
+            <div class="k-metin" ${editable} id="ed-metin">${p.metin || ''}</div>
             <div id="img-container">${imgHtml}</div>
-            ${isAdmin ? `
+            ${window.isAdmin ? `
                 <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
                     <input type="file" id="file-input" accept="image/*" style="font-size:0.7rem; width:100%;">
                     <button class="nav-btn-ok delete-btn" onclick="window.projeSil()">Bu Projeyi Sil</button>
@@ -154,17 +161,19 @@ function dGoster() {
             ` : ''}
         </div>
     `;
-    
+
     const btnGeri = document.getElementById('btnGeri');
     const btnIleri = document.getElementById('btnIleri');
-    if (btnGeri) btnGeri.disabled = (dAktifIdx === 0);
-    if (btnIleri) btnIleri.disabled = (dAktifIdx === dProjeler.length - 1);
-}
+    if (btnGeri) btnGeri.disabled = (window.dAktifIdx === 0);
+    if (btnIleri) btnIleri.disabled = (window.dAktifIdx === window.dProjeler.length - 1);
+};
 
 window.projeDegistir = function(yon) {
-    if(dAktifIdx + yon >= 0 && dAktifIdx + yon < dProjeler.length) {
-        dAktifIdx += yon;
-        dGoster();
+    if (!window.dProjeler || window.dProjeler.length === 0) return;
+    const yeni = window.dAktifIdx + yon;
+    if (yeni >= 0 && yeni < window.dProjeler.length) {
+        window.dAktifIdx = yeni;
+        window.dGoster();
     }
 };
 
@@ -172,74 +181,77 @@ window.yeniProjeEkle = function() {
     const simdi = new Date();
     const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     const tarihStr = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
-    dProjeler.unshift({ id: Date.now(), tarih: tarihStr, baslik: "Yeni Başlık", metin: "İçerik...", gorsel: "" });
-    dAktifIdx = 0;
-    dGoster();
+    window.dProjeler.unshift({ id: Date.now(), tarih: tarihStr, baslik: "Yeni Başlık", metin: "İçerik...", gorsel: "" });
+    window.dAktifIdx = 0;
+    window.dGoster();
 };
 
 window.projeSil = function() {
-    if(!confirm("Silinsin mi?")) return;
-    dProjeler.splice(dAktifIdx, 1);
-    dAktifIdx = 0;
-    dGoster();
+    if (!confirm("Silinsin mi?")) return;
+    window.dProjeler.splice(window.dAktifIdx, 1);
+    window.dAktifIdx = 0;
+    window.dGoster();
 };
 
 window.githubKaydet = async function() {
     const loader = document.getElementById('loader');
     if (loader) loader.style.display = "flex";
     try {
-        const p = dProjeler[dAktifIdx];
+        const p = window.dProjeler[window.dAktifIdx];
         const edTarih = document.getElementById('ed-tarih');
         const edBaslik = document.getElementById('ed-baslik');
         const edMetin = document.getElementById('ed-metin');
-        
+
         if (edTarih) p.tarih = edTarih.innerText.trim();
         if (edBaslik) p.baslik = edBaslik.innerText.trim();
         if (edMetin) p.metin = edMetin.innerText.trim();
 
         const fileInput = document.getElementById('file-input');
-        if(fileInput && fileInput.files && fileInput.files[0]) {
+        if (fileInput && fileInput.files && fileInput.files[0]) {
             const file = fileInput.files[0];
             const reader = new FileReader();
-            await new Promise((resolve) => {
-                reader.onload = () => resolve();
+            const result = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
-            const base64Content = reader.result.split(',')[1];
+            const base64Content = result.split(',')[1];
             const dosyaAdi = `img-${Date.now()}.png`;
             const imgRes = await fetch(`https://api.github.com/repos/${REPO}/contents/images/${dosyaAdi}`, {
                 method: 'PUT',
-                headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: "Upload img", content: base64Content })
+                headers: { 'Authorization': `token ${window.ghToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'Upload img', content: base64Content })
             });
             if (imgRes.ok) p.gorsel = dosyaAdi;
         }
 
         const jsonUrl = `https://api.github.com/repos/${REPO}/contents/data/projeler.json`;
-        const getFile = await fetch(jsonUrl, { headers: { 'Authorization': `token ${ghToken}` } });
+        const getFile = await fetch(jsonUrl, { headers: { 'Authorization': `token ${window.ghToken}`} });
         const fileData = await getFile.json();
-        
+        if (!fileData.sha) throw new Error('SHA bilgisi alınamadı');
+
         const updateRes = await fetch(jsonUrl, {
             method: 'PUT',
-            headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+            headers: { 'Authorization': `token ${window.ghToken}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                message: "Update",
-                content: btoa(unescape(encodeURIComponent(JSON.stringify([...dProjeler].reverse(), null, 4)))),
+                message: 'Update',
+                content: btoa(unescape(encodeURIComponent(JSON.stringify([...window.dProjeler].reverse(), null, 4)))),
                 sha: fileData.sha
             })
         });
-        if (updateRes.ok) {
-            alert("Yayınlandı!");
-        } else {
-            alert("Hata!");
+        if (!updateRes.ok) {
+            const text = await updateRes.text();
+            throw new Error(text || 'Kaydetme hatası');
         }
-    } catch (e) { 
-        alert("Hata: " + e.message);
+        alert('Yayınlandı!');
+    } catch (e) {
+        alert('Hata: ' + e.message);
+        console.error(e);
+    } finally {
+        if (loader) loader.style.display = 'none';
+        window.dGoster();
     }
-    if (loader) loader.style.display = "none";
-    dGoster();
 };
 
-// Sayfa yüklendiğinde veri çek
-dVeriYukle();
+window.dVeriYukle();
 </script>
