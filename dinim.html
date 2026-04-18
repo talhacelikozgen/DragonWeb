@@ -103,10 +103,8 @@
 <div class="admin-area">
     <small onclick="document.getElementById('admin-panel').style.display='block'" style="cursor:pointer; color:#bbb;">Yönetim</small>
     <div id="admin-panel">
-        <input type="password" id="token" class="admin-input" placeholder="Token"> <br>
-        <input type="text" id="yeni-tarih" class="admin-input" placeholder="04-16"> <br>
-        <input type="text" id="yeni-soz" class="admin-input" placeholder="Yeni Söz"> <br>
-        <button onclick="yayinla()" style="padding:10px 20px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">YAYINLA</button>
+        <textarea id="yeni-nasihat" class="admin-input" rows="3" placeholder="Yeni nasihat metnini girin..."></textarea> <br>
+        <button onclick="nasihatEkle()" style="padding:10px 20px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">EKLE</button>
         <p id="durum" style="font-size: 0.85rem; margin-top: 8px; font-weight: bold;"></p>
     </div>
 </div>
@@ -155,32 +153,34 @@
         document.getElementById('admin-panel').style.display = 'block';
     }
 
-    async function yayinla() {
-        const token = ghToken || document.getElementById('token').value;
-        const tarih = document.getElementById('yeni-tarih').value;
-        const metin = document.getElementById('yeni-soz').value;
+    async function nasihatEkle() {
+        const metin = document.getElementById('yeni-nasihat').value.trim();
         const durum = document.getElementById('durum');
-        if(!token || !tarih || !metin) return alert("Token, tarih ve söz gerekli!");
-        durum.innerText = "Yükleniyor...";
+        if(!metin) return alert("Nasihat metni gerekli!");
+        if(!ghToken) return alert("Token gerekli!");
+        durum.innerText = "Ekleniyor...";
+        
+        const simdi = new Date();
+        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
         
         try {
             const url = `https://api.github.com/repos/${REPO}/contents/data/arsiv.json`;
-            const res = await fetch(url, { headers: { Authorization: `token ${token}` } });
+            const res = await fetch(url, { headers: { Authorization: `token ${ghToken}` } });
             const fileData = await res.json();
             let decoded = decodeURIComponent(atob(fileData.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
             let content = JSON.parse(decoded);
-            if (!Array.isArray(content[tarih])) content[tarih] = content[tarih] ? [content[tarih], metin] : [metin];
-            else content[tarih].push(metin);
+            if (!Array.isArray(content[anahtar])) content[anahtar] = content[anahtar] ? [content[anahtar]] : [];
+            content[anahtar].unshift(metin); // En üste ekle
             const base64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g, (m, p) => String.fromCharCode('0x' + p)));
             const update = await fetch(url, {
                 method: "PUT",
-                headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: `${tarih} eklendi`, content: base64, sha: fileData.sha })
+                headers: { Authorization: `token ${ghToken}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `${anahtar} güncellendi`, content: base64, sha: fileData.sha })
             });
             durum.innerText = update.ok ? "Başarılı!" : "Hata!";
             if (update.ok) {
-                document.getElementById('yeni-tarih').value = '';
-                document.getElementById('yeni-soz').value = '';
+                document.getElementById('yeni-nasihat').value = '';
+                aktifIndex = 0; // En üste git
                 veriyiYukle();
             }
         } catch (e) { durum.innerText = "Hata!"; }
