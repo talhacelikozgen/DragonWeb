@@ -118,120 +118,120 @@
 </footer>
 
 <script>
-const REPO = "talhacelikozgen/DragonWeb";
-var bugunkuSozler = [];
-var aktifIndex = 0;
-let isAdmin = false;
-let ghToken = "";
+(function() {
+    const REPO = "talhacelikozgen/DragonWeb";
+    var bugunkuSozler = [];
+    var aktifIndex = 0;
+    var isAdmin = false;
+    var ghToken = "";
 
-window.toggleMenu = function() { 
-    document.getElementById('side-menu').classList.toggle('active'); 
-};
+    window.toggleMenu = function() {
+        document.getElementById('side-menu').classList.toggle('active');
+    };
 
-async function veriyiYukle() {
-    const simdi = new Date();
-    const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-    const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-    const tarihEl = document.getElementById('gercek-tarih');
-    const gunEl = document.getElementById('gun-adi');
-    if (tarihEl) tarihEl.innerText = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
-    if (gunEl) gunEl.innerText = gunler[simdi.getDay()].toUpperCase();
-    try {
-        const response = await fetch('data/arsiv.json?t=' + Date.now());
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const veriler = await response.json();
-        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
-        bugunkuSozler = Array.isArray(veriler[anahtar]) ? veriler[anahtar] : (veriler[anahtar] ? [veriler[anahtar]] : []);
-        goster();
-    } catch (e) { 
-        const metniEl = document.getElementById('nasihat-metni');
-        if (metniEl) metniEl.innerText = "Veri çekilemedi."; 
-    }
-}
-
-function goster() {
-    const metniEl = document.getElementById('nasihat-metni');
-    if (!metniEl) return;
-    if (bugunkuSozler.length === 0) {
-        metniEl.innerText = "Kayıt bulunamadı.";
-        return;
-    }
-    metniEl.innerText = bugunkuSozler[aktifIndex];
-    const bilgiEl = document.getElementById('sayfa-bilgi');
-    if (bilgiEl) bilgiEl.innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    if (prevBtn) prevBtn.disabled = aktifIndex === 0;
-    if (nextBtn) nextBtn.disabled = aktifIndex === bugunkuSozler.length - 1;
-    if (isAdmin) {
-        metniEl.contentEditable = true;
-    }
-}
-
-window.degistir = function(yon) { 
-    aktifIndex += yon; 
-    goster(); 
-};
-
-// Admin modu açma fonksiyonu
-window.adminModunuAc = function(token) {
-    ghToken = token;
-    isAdmin = true;
-    const editModeEl = document.getElementById('edit-mode');
-    if (editModeEl) editModeEl.style.display = 'block';
-    goster();
-};
-
-window.yeniMetinEkle = function() {
-    const editFormEl = document.getElementById('edit-form');
-    if (editFormEl) editFormEl.style.display = 'block';
-    const simdi = new Date();
-    const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
-    const tarihEl = document.getElementById('yeni-tarih');
-    if (tarihEl) tarihEl.value = anahtar;
-};
-
-window.iptalEt = function() {
-    const editFormEl = document.getElementById('edit-form');
-    if (editFormEl) editFormEl.style.display = 'none';
-    const nasihatEl = document.getElementById('yeni-nasihat');
-    const tarihEl = document.getElementById('yeni-tarih');
-    if (nasihatEl) nasihatEl.value = '';
-    if (tarihEl) tarihEl.value = '';
-};
-
-window.nasihatEkle = async function() {
-    const nasihatEl = document.getElementById('yeni-nasihat');
-    const tarihEl = document.getElementById('yeni-tarih');
-    const metin = nasihatEl ? nasihatEl.value.trim() : '';
-    const tarih = tarihEl ? tarihEl.value.trim() : '';
-    if(!metin || !tarih) return alert("Metin ve tarih gerekli!");
-    if(!ghToken) return alert("Token gerekli!");
-    
-    try {
-        const url = `https://api.github.com/repos/${REPO}/contents/data/arsiv.json`;
-        const res = await fetch(url, { headers: { Authorization: `token ${ghToken}` } });
-        const fileData = await res.json();
-        let decoded = decodeURIComponent(atob(fileData.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-        let content = JSON.parse(decoded);
-        if (!Array.isArray(content[tarih])) content[tarih] = content[tarih] ? [content[tarih]] : [];
-        content[tarih].unshift(metin);
-        const base64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g, (m, p) => String.fromCharCode('0x' + p)));
-        const update = await fetch(url, {
-            method: "PUT",
-            headers: { Authorization: `token ${ghToken}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: `${tarih} güncellendi`, content: base64, sha: fileData.sha })
-        });
-        if (update.ok) {
-            alert("Başarılı!");
-            window.iptalEt();
-            aktifIndex = 0;
-            veriyiYukle();
-        } else {
-            alert("Hata!");
+    async function veriyiYukle() {
+        const simdi = new Date();
+        const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+        const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        const tarihEl = document.getElementById('gercek-tarih');
+        const gunEl = document.getElementById('gun-adi');
+        if (tarihEl) tarihEl.innerText = `${simdi.getDate()} ${aylar[simdi.getMonth()]} ${simdi.getFullYear()}`;
+        if (gunEl) gunEl.innerText = gunler[simdi.getDay()].toUpperCase();
+        try {
+            const response = await fetch('data/arsiv.json?t=' + Date.now());
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const veriler = await response.json();
+            const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
+            bugunkuSozler = Array.isArray(veriler[anahtar]) ? veriler[anahtar] : (veriler[anahtar] ? [veriler[anahtar]] : []);
+            goster();
+        } catch (e) {
+            const metniEl = document.getElementById('nasihat-metni');
+            if (metniEl) metniEl.innerText = "Veri çekilemedi.";
         }
-    } catch (e) { alert("Hata!"); }
-};
+    }
 
-veriyiYukle();
+    function goster() {
+        const metniEl = document.getElementById('nasihat-metni');
+        if (!metniEl) return;
+        if (bugunkuSozler.length === 0) {
+            metniEl.innerText = "Kayıt bulunamadı.";
+            return;
+        }
+        metniEl.innerText = bugunkuSozler[aktifIndex];
+        const bilgiEl = document.getElementById('sayfa-bilgi');
+        if (bilgiEl) bilgiEl.innerText = `${aktifIndex + 1} / ${bugunkuSozler.length}`;
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        if (prevBtn) prevBtn.disabled = aktifIndex === 0;
+        if (nextBtn) nextBtn.disabled = aktifIndex === bugunkuSozler.length - 1;
+        if (isAdmin) {
+            metniEl.contentEditable = true;
+        }
+    }
+
+    window.degistir = function(yon) {
+        aktifIndex += yon;
+        goster();
+    };
+
+    window.adminModunuAc = function(token) {
+        ghToken = token;
+        isAdmin = true;
+        const editModeEl = document.getElementById('edit-mode');
+        if (editModeEl) editModeEl.style.display = 'block';
+        goster();
+    };
+
+    window.yeniMetinEkle = function() {
+        const editFormEl = document.getElementById('edit-form');
+        if (editFormEl) editFormEl.style.display = 'block';
+        const simdi = new Date();
+        const anahtar = `${String(simdi.getMonth() + 1).padStart(2, '0')}-${String(simdi.getDate()).padStart(2, '0')}`;
+        const tarihEl = document.getElementById('yeni-tarih');
+        if (tarihEl) tarihEl.value = anahtar;
+    };
+
+    window.iptalEt = function() {
+        const editFormEl = document.getElementById('edit-form');
+        if (editFormEl) editFormEl.style.display = 'none';
+        const nasihatEl = document.getElementById('yeni-nasihat');
+        const tarihEl = document.getElementById('yeni-tarih');
+        if (nasihatEl) nasihatEl.value = '';
+        if (tarihEl) tarihEl.value = '';
+    };
+
+    window.nasihatEkle = async function() {
+        const nasihatEl = document.getElementById('yeni-nasihat');
+        const tarihEl = document.getElementById('yeni-tarih');
+        const metin = nasihatEl ? nasihatEl.value.trim() : '';
+        const tarih = tarihEl ? tarihEl.value.trim() : '';
+        if(!metin || !tarih) return alert("Metin ve tarih gerekli!");
+        if(!ghToken) return alert("Token gerekli!");
+        try {
+            const url = `https://api.github.com/repos/${REPO}/contents/data/arsiv.json`;
+            const res = await fetch(url, { headers: { Authorization: `token ${ghToken}` } });
+            const fileData = await res.json();
+            let decoded = decodeURIComponent(atob(fileData.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            let content = JSON.parse(decoded);
+            if (!Array.isArray(content[tarih])) content[tarih] = content[tarih] ? [content[tarih]] : [];
+            content[tarih].unshift(metin);
+            const base64 = btoa(encodeURIComponent(JSON.stringify(content, null, 4)).replace(/%([0-9A-F]{2})/g, (m, p) => String.fromCharCode('0x' + p)));
+            const update = await fetch(url, {
+                method: "PUT",
+                headers: { Authorization: `token ${ghToken}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `${tarih} güncellendi`, content: base64, sha: fileData.sha })
+            });
+            if (update.ok) {
+                alert("Başarılı!");
+                window.iptalEt();
+                aktifIndex = 0;
+                veriyiYukle();
+            } else {
+                alert("Hata!");
+            }
+        } catch (e) { alert("Hata!"); }
+    };
+
+    veriyiYukle();
+})();
 </script>
