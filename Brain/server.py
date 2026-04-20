@@ -4,27 +4,28 @@ import json
 import os
 
 app = Flask(__name__)
-CORS(app) # Siteden gelen isteklere izin ver
+CORS(app)
 
-# Yollar
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOARD_FILE = os.path.join(BASE_DIR, "Archive", "dragon_board.json")
 
 @app.route('/send-order', methods=['POST'])
 def receive_order():
-    new_task = request.json
-    
-    # Mevcut veriyi oku
-    with open(BOARD_FILE, 'r+', encoding='utf-8') as f:
-        data = json.load(f)
-        data["tasks"].append(new_task)
-        # Dosyanın başına dön ve üzerine yaz
-        f.seek(0)
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.truncate()
-    
-    print(f"🐉 Dragon Brain: Yeni emir alındı ve Arşive işlendi: {new_task['title']}")
-    return jsonify({"status": "success", "message": "Emir Arşive İşlendi"})
+    try:
+        new_task = request.json
+        print(f"📩 Emir Geldi: {new_task['title']}")
+        
+        with open(BOARD_FILE, 'r+', encoding='utf-8') as f:
+            data = json.load(f)
+            data["tasks"].append(new_task)
+            f.seek(0)
+            json.dump(data, f, indent=4, ensure_ascii=False)
+            f.truncate()
+        
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print(f"❌ Server Hatası: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(port=5000) # Bilgisayarında 5000 portunda çalışır
+    app.run(host='0.0.0.0', port=5000, debug=False)
