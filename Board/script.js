@@ -23,14 +23,28 @@ function loadBoard() {
         });
 }
 
-// Yeni Emir Gönder (Şimdilik sadece konsola yazar, ileride Python yakalar)
 function sendOrder() {
-    const title = document.getElementById('taskTitle').value;
-    const lang = document.getElementById('taskLang').value;
-    const desc = document.getElementById('taskDesc').value;
+    const task = {
+        title: document.getElementById('taskTitle').value,
+        language: document.getElementById('taskLang').value,
+        description: document.getElementById('taskDesc').value,
+        status: "todo"
+    };
 
-    console.log("🐲 Emir Dragon Brain'e iletildi:", { title, lang, desc });
-    alert("Emir verildi! (Python Backend entegrasyonu bir sonraki adımda yapılacak)");
+    // Bilgisayarındaki Python beynine (server.py) veriyi gönder
+    fetch('http://127.0.0.1:5000/send-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(task)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("🐉 Dragon Brain Emri Aldı!");
+        loadBoard(); // Panoyu yenile
+    })
+    .catch(err => {
+        console.error("Bağlantı Hatası: Python 'server.py' çalışıyor mu?", err);
+    });
 }
 
 loadBoard();
