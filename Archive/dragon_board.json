@@ -1,0 +1,11 @@
+{
+    "tasks": [
+        {
+            "title": "Giriş Sistemi",
+            "language": "Java",
+            "description": "Kullanıcı giriş loglarını tutan yapı",
+            "status": "todo"
+        }
+    ],
+    "logs": []
+}
