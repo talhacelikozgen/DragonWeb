@@ -1,36 +1,35 @@
-import subprocess
-import time
+"""Dragon Master - Scout'u yönetme ve koordinasyon"""
 import sys
 import os
 
-def run_git_sync():
-    # Otomatik Git Push Komutu
-    try:
-        subprocess.run(["git", "add", "."], check=True)
-        # Sadece değişiklik varsa commit at
-        status = subprocess.check_output(["git", "status", "--porcelain"])
-        if status:
-            subprocess.run(["git", "commit", "-m", "🐉 Dragon Archive: Otomatik Senkronizasyon"], check=True)
-            subprocess.run(["git", "push", "origin", "main"], check=True)
-            print("🚀 Dragon Archive GitHub'a fırlatıldı!")
-    except Exception as e:
-        print(f"⚠️ Git Sync Hatası: {e}")
+# Scout modülünü import et
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE_DIR)
 
-def run_system():
-    print("🐉 Dragon Brain Uyandırılıyor...")
-    server_process = subprocess.Popen([sys.executable, "Brain/server.py"])
+from scout import DragonScout
+import logging
+
+logger = logging.getLogger(__name__)
+
+class DragonMaster:
+    """Scout'u orkestrasyonla yönet"""
     
-    try:
-        while True:
-            print("👁️ Dragon Scout devriyeye çıkıyor...")
-            subprocess.run([sys.executable, "Brain/scout.py"])
-            
-            # Her taramadan sonra Git'e yolla
-            run_git_sync()
-            
-            time.sleep(60) 
-    except KeyboardInterrupt:
-        server_process.terminate()
+    def __init__(self):
+        self.scout = DragonScout()
+    
+    def run_operations(self):
+        """Tüm Dragon operasyonlarını çalıştır"""
+        logger.info("🐉 Dragon Master başlatıldı")
+        success = self.scout.scan_board_and_find_refs()
+        if success:
+            logger.info("✅ Tüm operasyonlar başarıyla tamamlandı")
+            return True
+        else:
+            logger.warning("⚠️ Bazı operasyonlar başarısız olmuş olabilir")
+            return False
 
 if __name__ == "__main__":
-    run_system()
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    master = DragonMaster()
+    success = master.run_operations()
+    sys.exit(0 if success else 1)
