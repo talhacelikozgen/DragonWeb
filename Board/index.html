@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dragon Board</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        .board { display: flex; gap: 20px; }
+        .column { border: 1px solid #0f0; padding: 10px; min-width: 250px; }
+        .card { background: #111; border: 1px solid #555; padding: 10px; margin: 10px 0; }
+        .tag { color: #d4af37; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>DRAGON BOARD - KONTROL MERKEZİ</h1>
+    <div class="board" id="main-board">
+        <div class="column">
+            <h3>GÖREVLER</h3>
+            <div id="task-list"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
