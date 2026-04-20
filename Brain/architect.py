@@ -1,16 +1,18 @@
 import json
-import shutil
 import os
 
-# KLASÖR YOLLARINI TANIMLIYORUZ (Senin istediğin gibi)
-BRAIN_PATH = "./DragonBrain/"
-ARCHIVE_PATH = "./DragonArchive/"
+# Klasör yollarını senin ana repona (DragonWeb) göre ayarladık
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ARCHIVE_PATH = os.path.join(BASE_DIR, "Archive")
+BOARD_DATA_FILE = os.path.join(ARCHIVE_PATH, "dragon_board.json")
 
 class DragonArchitect:
-    def __init__(self, project_name):
-        self.project_name = project_name
-        self.board_filename = "dragon_board.json"
-        self.data = {"project": project_name, "tasks": []}
+    def __init__(self):
+        # Eğer Archive klasörü yoksa oluştur
+        if not os.path.exists(ARCHIVE_PATH):
+            os.makedirs(ARCHIVE_PATH)
+        
+        self.data = {"tasks": [], "logs": []}
 
     def create_task(self, title, lang, desc):
         task = {
@@ -20,17 +22,13 @@ class DragonArchitect:
             "status": "todo"
         }
         self.data["tasks"].append(task)
-        self.sync_to_github()
+        self.save_to_archive()
 
-    def sync_to_github(self):
-        # 1. Önce dosyayı yerelde oluştur
-        with open(self.board_filename, 'w', encoding='utf-8') as f:
-            json.dump(self.data, f, indent=4)
-        
-        # 2. Dosyayı DragonArchive klasörüne kopyala
-        shutil.copy(self.board_filename, os.path.join(ARCHIVE_PATH, self.board_filename))
-        print(f"✅ {self.board_filename} arşive kopyalandı.")
+    def save_to_archive(self):
+        with open(BOARD_DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(self.data, f, indent=4, ensure_ascii=False)
+        print(f"✅ Görev kaydedildi: {BOARD_DATA_FILE}")
 
-# Başlat
-architect = DragonArchitect("Dragon's Escape")
-architect.create_task("Karakter Kontrolcü", "C#", "Zıplama ve yürüme logları dahil")
+# Kullanım
+architect = DragonArchitect()
+architect.create_task("Giriş Sistemi", "Java", "Kullanıcı giriş loglarını tutan yapı")
