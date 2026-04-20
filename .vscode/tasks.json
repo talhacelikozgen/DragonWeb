@@ -4,7 +4,7 @@
         {
             "label": "DRAGON BAŞLAT",
             "type": "shell",
-            "command": "python Brain/dragon_master.py",
+            "command": "py Brain/dragon_master.py",
             "group": {
                 "kind": "build",
                 "isDefault": true
