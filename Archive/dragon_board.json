@@ -5,6 +5,22 @@
             "language": "Java",
             "description": "Kullanıcı giriş loglarını tutan yapı",
             "status": "todo"
+        },
+        {
+            "title": "2d envanter sistemi",
+            "language": "C# (Unity)",
+            "description": "2d oyunum için minimalist bir envanter gui'ına ihtiyacım var.",
+            "status": "todo",
+            "created_at": "2026-04-20T23:16:34.888188",
+            "id": 2
+        },
+        {
+            "title": "Düşman Yapay Zekası",
+            "language": "C# (Unity)",
+            "description": "basit düşman yapay zeka mekaniği.",
+            "status": "todo",
+            "created_at": "2026-04-20T23:30:01.591858",
+            "id": 3
         }
     ],
     "logs": []

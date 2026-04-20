@@ -1,0 +1,4 @@
+Görev: 2d envanter sistemi
+Dil: C# (Unity)
+Oluşturulma: 2026-04-20 23:17:29
+Dragon Scout tarafından otomatik oluşturuldu.

@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import logging
+import random
 from datetime import datetime
 
 # Logging ayarı
@@ -17,163 +18,124 @@ WORKSHOP_PATH = os.path.join(BASE_DIR, "Workshop")
 
 class DragonScout:
     def __init__(self):
+        # Gerekli klasörleri oluştur
         for path in [REF_PATH, WORKSHOP_PATH]:
             if not os.path.exists(path):
                 os.makedirs(path)
-                logger.info(f"Klasör oluşturuldu: {path}")
+                logger.info(f"📁 Klasör oluşturuldu: {path}")
 
-    def turkish_to_english(self, text):
-        """Türkçe karakterleri İngilizce'ye dönüştür ve dosya adı formatına çevir"""
-        if not text:
-            return "unnamed"
-        chars = {"ç": "c", "ş": "s", "ğ": "g", "ü": "u", "ö": "o", "ı": "i", "İ": "I", "Ç": "C", "Ş": "S", "Ğ": "G", "Ü": "U", "Ö": "O"}
-        for tr, en in chars.items():
+    def clean_name(self, text):
+        """Türkçe karakterleri temizler ve dosya dostu isim yapar"""
+        if not text: return "isimsiz_gorev"
+        tr_map = {"ç": "c", "ş": "s", "ğ": "g", "ü": "u", "ö": "o", "ı": "i", "İ": "I", 
+                  "Ç": "C", "Ş": "S", "Ğ": "G", "Ü": "U", "Ö": "O"}
+        for tr, en in tr_map.items():
             text = text.replace(tr, en)
         return text.replace(" ", "_").lower().strip()
 
     def download_preview(self, keyword, folder):
-        """İnternetten görev için preview görsel indir"""
-        img_url = "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400"
+        """Görseli indirir ve klasöre kaydeder"""
+        random_id = random.randint(1, 1000)
+        # Unsplash bazen Türkçe karakterde sorun yaşayabilir, keyword'ü temizleyelim
+        search_term = keyword.replace(" ", ",")
+        search_url = f"https://source.unsplash.com/featured/400x300?{search_term},robot,game&sig={random_id}"
+        
         try:
-            response = requests.get(img_url, timeout=5)
+            response = requests.get(search_url, timeout=15, allow_redirects=True)
             if response.status_code == 200:
-                preview_path = os.path.join(folder, "preview.jpg")
-                with open(preview_path, 'wb') as f:
+                file_full_path = os.path.join(folder, "preview.jpg")
+                with open(file_full_path, 'wb') as f:
                     f.write(response.content)
-                logger.info(f"Preview indirildi: {preview_path}")
+                # KESİN LOG:
+                logger.info(f"📸 GÖRSEL KAYDEDİLDİ: {file_full_path}")
                 return True
-        except requests.RequestException as e:
-            logger.warning(f"Preview indirme başarısız ({keyword}): {e}")
-        except IOError as e:
-            logger.error(f"Dosya yazma hatası: {e}")
+        except Exception as e:
+            logger.warning(f"⚠️ Görsel Hatası: {e}")
         return False
-    
+
     def generate_workshop_code(self, task_title, lang):
-        """Dil bazlı kod taslağı oluştur"""
-        file_name = self.turkish_to_english(task_title)
-        class_name = task_title.replace(' ', '').replace('-', '')
+        """Taslağı Workshop klasörüne yazar"""
+        file_name = self.clean_name(task_title)
+        class_name = "".join(filter(str.isalnum, task_title.title())).replace(" ", "")
+        if class_name[0].isdigit():
+            class_name = "Dragon_" + class_name  # Örn: Dragon_2dEnvanterSistemi
+        # ... (Template'ler aynı kalıyor) ...
         
-        code_templates = {
-            "C# (Unity)": {
-                "ext": ".cs",
-                "code": f"""using UnityEngine;
-
-public class {class_name} : MonoBehaviour
-{{
-    void Start()
-    {{
-        Debug.Log(\"🐉 Dragon: {task_title} sistemi aktif.\");
-    }}
-}}"""
-            },
-            "Java (Sistem)": {
-                "ext": ".java",
-                "code": f"""public class {class_name} {{
-    public static void main(String[] args) {{
-        System.out.println(\"🐉 Dragon: {task_title} baslatildi.\");
-    }}
-}}"""
-            },
-            "Python (AI)": {
-                "ext": ".py",
-                "code": f"""# Dragon Task: {task_title}
-# Oluşturulma tarihi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-class {class_name}:
-    def __init__(self):
-        print(f\"🐉 Dragon: {task_title} başlatıldı.\")
-
-if __name__ == \"__main__\":
-    task = {class_name}()
-"""
-            }
-        }
-        
-        # Dil desteğini kontrol et
-        template = None
-        for key, value in code_templates.items():
-            if key in lang or lang in key:
-                template = value
-                break
-        
-        if not template:
-            logger.warning(f"Desteklenmeyen dil: {lang}. Ayarlar: {', '.join(code_templates.keys())}")
-            return
-        
-        file_path = os.path.join(WORKSHOP_PATH, file_name + template["ext"])
-        if not os.path.exists(file_path):
+        # DOSYA YOLU KONTROLÜ
+        if template:
+            # Workshop klasörünün tam yolundan emin olalım
+            workshop_full_path = os.path.abspath(WORKSHOP_PATH)
+            if not os.path.exists(workshop_full_path):
+                os.makedirs(workshop_full_path)
+                
+            file_path = os.path.join(workshop_full_path, file_name + template["ext"])
+            
             try:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(template["code"])
-                logger.info(f"Kod taslağı oluşturuldu: {file_path}")
-            except IOError as e:
-                logger.error(f"Kod taslağı yazma hatası: {e}")
+                logger.info(f"🛠️ KOD DOSYASI OLUŞTU: {file_path}")
+            except Exception as e:
+                logger.error(f"❌ Kod yazılamadı: {e}")
+
+        # Uygun şablonu bul
+        template = templates.get(lang)
+        if not template:
+            # Eğer tam eşleşme yoksa (örn: sadece 'C#' yazıldıysa) esnek kontrol yap
+            for key in templates:
+                if key.split()[0] in lang:
+                    template = templates[key]
+                    break
+
+        if template:
+            file_path = os.path.join(WORKSHOP_PATH, file_name + template["ext"])
+            if not os.path.exists(file_path):
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(template["code"])
+                logger.info(f"🛠️ Kod taslağı hazırlandı: {file_name}{template['ext']}")
 
     def scan_board_and_find_refs(self):
-        """Board'daki görevleri tara ve referansları oluştur"""
+        """JSON dosyasını tara ve yeni görevler için işlemleri yap"""
         if not os.path.exists(BOARD_FILE):
-            logger.error(f"Board dosyası bulunamadı: {BOARD_FILE}")
+            logger.error("❌ Board dosyası bulunamadı!")
             return False
 
         try:
             with open(BOARD_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-        except json.JSONDecodeError as e:
-            logger.error(f"Board JSON hatası: {e}")
-            return False
-        except IOError as e:
-            logger.error(f"Board okuma hatası: {e}")
-            return False
-        
-        if "tasks" not in data or not isinstance(data["tasks"], list):
-            logger.warning("Board'da 'tasks' anahtarı veya format yok")
-            return False
-        
-        success_count = 0
-        for task in data["tasks"]:
-            try:
-                if not isinstance(task, dict) or "title" not in task:
-                    logger.warning(f"Geçersiz görev formatı: {task}")
-                    continue
-                    
-                keyword = task["title"]
-                lang = task.get("language", "Unknown")
-                clean_folder_name = self.turkish_to_english(keyword)
-                ref_folder = os.path.join(REF_PATH, clean_folder_name)
+            
+            success_count = 0
+            for task in data.get("tasks", []):
+                title = task.get("title")
+                lang = task.get("language", "C# (Unity)")
                 
+                folder_name = self.clean_name(title)
+                ref_folder = os.path.join(REF_PATH, folder_name)
+
+                # Eğer bu görev için klasör yoksa, bu yenidir!
                 if not os.path.exists(ref_folder):
+                    logger.info(f"👁️ Yeni görev keşfedildi: {title}")
                     os.makedirs(ref_folder)
-                    logger.info(f"👁️ Scout: '{keyword}' için klasör oluşturuldu")
                     
-                    # Git takibi için .gitkeep
-                    gitkeep_path = os.path.join(ref_folder, ".gitkeep")
-                    with open(gitkeep_path, "w") as f:
-                        f.write("")
+                    # 1. Görsel Ganimet
+                    self.download_preview(title, ref_folder)
                     
-                    # Referans Logu
-                    log_path = os.path.join(ref_folder, "ref_log.txt")
-                    with open(log_path, "w", encoding='utf-8') as log:
-                        log.write(f"Görev: {keyword}\n")
-                        log.write(f"Dil: {lang}\n")
-                        log.write(f"Oluşturulma: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                        log.write(f"Dragon Scout tarafından otomatik oluşturuldu.\n")
+                    # 2. Kod Taslağı
+                    self.generate_workshop_code(title, lang)
                     
-                    # Kod taslağı
-                    self.generate_workshop_code(keyword, lang)
+                    # 3. Log Dosyası
+                    with open(os.path.join(ref_folder, "research_note.txt"), "w", encoding="utf-8") as f:
+                        f.write(f"🐉 DRAGON RESEARCH\nGörev: {title}\nDil: {lang}\nTarih: {datetime.now()}")
                     
-                    # Görsel Ganimet
-                    self.download_preview(keyword, ref_folder)
                     success_count += 1
-            except Exception as e:
-                logger.error(f"Görev işleme hatası '{keyword}': {e}")
-                continue
-        
-        logger.info(f"✅ Scout taraması tamamlandı. {success_count} yeni görev işlendi.")
-        return True
+
+            if success_count > 0:
+                logger.info(f"✅ Tarama bitti. {success_count} yeni ganimet toplandı.")
+            return True
+
+        except Exception as e:
+            logger.error(f"❌ Scout Hatası: {e}")
+            return False
 
 if __name__ == "__main__":
-    try:
-        scout = DragonScout()
-        scout.scan_board_and_find_refs()
-    except Exception as e:
-        logger.critical(f"Scout kritik hatası: {e}", exc_info=True)
+    scout = DragonScout()
+    scout.scan_board_and_find_refs()
