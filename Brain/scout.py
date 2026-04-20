@@ -75,6 +75,7 @@ class DragonScout:
             if not os.path.exists(ref_folder):
                 print(f"👁️ Dragon Scout Gözlemliyor: {keyword} için klasör ve ganimet hazırlanıyor...")
                 os.makedirs(ref_folder)
+                self.generate_workshop_code(keyword, task["language"])
                 
                 # Git takibi için .gitkeep
                 with open(os.path.join(ref_folder, ".gitkeep"), "w") as f:
