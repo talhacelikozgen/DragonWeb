@@ -1,6 +1,7 @@
 import torch
-import intel_extension_for_pytorch as ipex  # Intel GPU hızlandırıcı
-from diffusers import StableDiffusionPipeline
+import intel_extension_for_pytorch as ipex 
+# Pylance'in istediği tam yol (import yolu değişti):
+from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion import StableDiffusionPipeline
 import os
 
 class DragonEngine:
@@ -10,6 +11,9 @@ class DragonEngine:
         # Model yolu (Klasörde bu ismin birebir aynı olduğundan emin ol!)
         self.model_path = "./models/realisticVisionV60_v60B1.safetensors"
         self.device = "xpu"  
+
+        if not os.path.exists(self.model_path):
+            raise FileNotFoundError(f"Model dosyasi bulunamadi: {self.model_path}. Lutfen 'models' klasorunu kontrol edin.")
 
         # 1. Modeli Yükle
         self.pipe = StableDiffusionPipeline.from_single_file(
