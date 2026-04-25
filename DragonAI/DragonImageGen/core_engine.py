@@ -1,45 +1,54 @@
-import torch
-import intel_extension_for_pytorch as ipex  # Intel GPU hızlandırıcı
-from diffusers import StableDiffusionPipeline
 import os
+import torch
+import time
+
+# IPEX hatasını engellemek için ortam değişkenlerini temizleyelim
+os.environ["PYTORCH_ENABLE_XPU_FALLBACK"] = "1"
 
 class DragonEngine:
     def __init__(self):
-        print("--- Dragon AI Motoru Başlatılıyor (Intel Arc B580) ---")
+        print("--- Dragon AI Motoru Başlatılıyor (Direct XPU Mode) ---")
         
-        # Model yolu (Klasörde bu ismin birebir aynı olduğundan emin ol!)
-        self.model_path = "./models/realisticVisionV60_v60B1.safetensors"
-        self.device = "xpu"  
-
-        # 1. Modeli Yükle
-        self.pipe = StableDiffusionPipeline.from_single_file(
-            self.model_path, 
-            torch_dtype=torch.float16, 
-            safetensors=True
-        )
-
-        # 2. Intel Arc Optimizasyonlarını Uygula
-        self.pipe = self.pipe.to(self.device)
+        # Cihazı XPU (Intel GPU) olarak belirliyoruz
+        self.device = "xpu" 
+        self.model_id = "runwayml/stable-diffusion-v1-5"
         
-        # IPEX ile katmanları optimize et
-        self.pipe.unet = ipex.optimize(self.pipe.unet, dtype=torch.float16)
-        self.pipe.vae = ipex.optimize(self.pipe.vae, dtype=torch.float16)
-        self.pipe.text_encoder = ipex.optimize(self.pipe.text_encoder, dtype=torch.float16)
+        from diffusers import StableDiffusionPipeline
         
-        print("--- Dragon AI Motoru Hazır! ---")
-
-    def generate(self, prompt: str, negative_prompt: str, steps: int):
-        # Intel Karışık Hassasiyet (AMP) kullanarak görsel üret
-        # 'with torch.xpu.amp.autocast()' Intel Arc için bellek ve hız dengesini sağlar
-        with torch.xpu.amp.autocast(), torch.no_grad():
-            result = self.pipe(
-                prompt=prompt,
-                negative_prompt=negative_prompt,
-                num_inference_steps=steps,
-                guidance_scale=7.5
-            )
+        try:
+            print(f"Model {self.device} üzerine yükleniyor...")
+            # IPEX'i import etmiyoruz, direkt PyTorch üzerinden yüklüyoruz
+            self.pipe = StableDiffusionPipeline.from_pretrained(
+                self.model_id, 
+                torch_dtype=torch.float16,
+                use_safetensors=True
+            ).to(self.device)
             
-            # // işaretini sildik, Python listesinden ilk resmi çekiyoruz
-            image = result.images[0]
+            print("--- Dragon AI Motoru Hazır! ---")
+        except Exception as e:
+            print(f"--- [KRİTİK HATA] GPU Modu Başarısız: {e} ---")
+            print("İpucu: Eğer hala hata alıyorsanız Intel Arc sürücülerinizi güncelleyin.")
+
+    def generate(self, prompt, negative_prompt="", steps=20, width=512, height=512):
+        print(f"Üretim Başladı: {prompt}")
         
-        return image
+        # Üretim işlemi (IPEX optimizasyonu olmadan, saf PyTorch hızıyla)
+        image = self.pipe(
+            prompt,
+            negative_prompt=negative_prompt,
+            num_inference_steps=steps,
+            guidance_scale=7.5,
+            width=width,
+            height=height
+        ).images[0]
+        
+        # Kayıt
+        timestamp = int(time.time())
+        output_dir = "outputs"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        output_path = os.path.join(output_dir, f"dragon_{timestamp}.png")
+        image.save(output_path)
+        print(f"Görsel başarıyla kaydedildi: {output_path}")
+        return output_path
